@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Wheel Page</title>
+<style>
+.dot {
+	height: 25px;
+	width: 25px;
+	background: {{ 'sector_color' }};
+	display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<span class="dot"></span>
+
+<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'spin' %}';">{{ button_text }}</button>
+</body>
+</html>
