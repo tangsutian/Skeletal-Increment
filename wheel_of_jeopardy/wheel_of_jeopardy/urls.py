@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 admin.autodiscover()
-import gameLogic
+from wheel_of_jeopardy import gameLogic
 
 
 urlpatterns = [
