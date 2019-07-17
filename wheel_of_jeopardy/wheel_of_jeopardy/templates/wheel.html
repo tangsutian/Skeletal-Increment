@@ -17,5 +17,25 @@
 <span class="dot"></span>
 
 <button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link }}';">{{ button_text }}</button>
+
+<table style="width:20%">
+  <tr>
+  	<th>Player Name</th>
+  	<th>Round 1 Points</th>
+  	<th>Round 2 Points</th>
+  	<th>Total Points</th>
+  </tr>
+
+
+  {% for diction in player_points %}
+  <tr>
+  	{% for key, value in diction.items %}
+    	<th>{{value}}</a></th>
+	{% endfor %}
+  </tr>
+  {% endfor %}
+
+
+</table>
 </body>
 </html>

@@ -7,7 +7,18 @@
 <body>
 <h1>Wheel of Jeopardy!</h1>
 
+	<form action="{{ url }}" method="post">
+		{% csrf_token %}
+    	<label for="player_1_name">Player 1's Name: </label>
+    	<input id="p1_name" type="text" name="player_1_name" value="{{ player_1_name }}">
+
+    	<label for="player_2_name">Player 2's Name: </label>
+    	<input id="p2_name" type="text" name="player_2_name" value="{{ player_2_name }}">
+    	<input type="submit" value="Update Player Names">
+	</form>
+
 <button onclick="window.location.href ='http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
 <button onclick="window.location.href ='http://127.0.0.1:8000{% url 'questionManager' %}';">{{ button_1_text }}</button>
+<button onclick="window.location.href ='http://127.0.0.1:8000{% url 'reset' %}';">{{ button_2_text }}</button>
 </body>
 </html>

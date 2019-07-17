@@ -19,18 +19,25 @@ admin.autodiscover()
 from wheel_of_jeopardy import gameLogic
 
 
-extra_patterns = [
+wheel_patterns = [
     path('', gameLogic.wheel, name='wheel'),
     path('spin/<int:sector_id>/', gameLogic.spin, name='spin'),
+]
+
+score_patterns = [
+    path('right/', gameLogic.right, name='updateScore'),
+    path('wrong/', gameLogic.wrong, name='updateScore'),
 ]
 
 
 urlpatterns = [
     path('home/', gameLogic.home, name='home'),
-    path('wheel/', include(extra_patterns)),
+    path('wheel/', include(wheel_patterns)),
     path('board/', gameLogic.board, name='board'),
     path('question/', gameLogic.question, name='question'),
     path('questionManager/', gameLogic.questionManager, name='questionManager'),
-    path('new_question/', gameLogic.addNewQuestion, name='addNewQuestion'),
+    path('newQuestion/', gameLogic.addNewQuestion, name='addNewQuestion'),
+    path('updateScore/', include(score_patterns)),
+    path('resetGame/', gameLogic.reset, name='reset'),
     path('', gameLogic.home, name='home'),
 ]

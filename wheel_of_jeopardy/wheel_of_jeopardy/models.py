@@ -44,6 +44,9 @@ class User(models.Model):
     free_tokens = models.IntegerField()
     current_turn = models.BooleanField()
 
+    def pointTable(self):
+        return {'1': self.username, '2': self.r1_points, '3': self.r2_points, '4': self.total_points}
+
 
 class GameSession(models.Model):
     '''

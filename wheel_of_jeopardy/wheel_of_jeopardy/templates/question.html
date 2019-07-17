@@ -7,7 +7,17 @@
 <body>
 <h1>{{ question_text }}</h1>
 <h3>{{ answer_text }}</h3>
-<button onclick="window.location.href = 'http://127.0.0.1:8000/wheel';">{{ button_1_text }}</button>
-<button onclick="window.location.href = 'http://127.0.0.1:8000/wheel';">{{ button_2_text }}</button>
+<!--button onclick="window.location.href = 'http://127.0.0.1:8000/wheel';">{{ button_1_text }}</button>
+<button onclick="window.location.href = 'http://127.0.0.1:8000/wheel';">{{ button_2_text }}</button-->
+
+	<form action="{{ right_url }}" method="post">
+		{% csrf_token %}
+    	<input id="right" type="submit" name="update" value='Right'>
+    </form>
+
+    <form action="{{ wrong_url }}" method="post">
+		{% csrf_token %}
+    	<input id="wrong" type="submit" name="update" value='Wrong'>
+    </form>	
 </body>
 </html>

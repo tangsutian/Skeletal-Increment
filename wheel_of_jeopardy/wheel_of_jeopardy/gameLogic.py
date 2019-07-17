@@ -11,26 +11,54 @@ import random
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 MAXSECTORNUM = 12
 
-from wheel_of_jeopardy.models import Category, Question
+from wheel_of_jeopardy.models import Category, Question, User, GameSession
 
+@require_http_methods(['GET'])
+def reset(request):
+    User.objects.all().delete()
+    GameSession.objects.all().delete()
+    Question.objects.all().delete()
+    Category.objects.all().delete()
 
-@require_http_methods(["GET"])
+    return HttpResponseRedirect('/')
+
+@require_http_methods(["GET", "POST"])
 def home(request):
     template = loader.get_template('home.html')
+    n1 = ''
+    if 'player_1_name' in request.POST:
+        n1 = request.POST['player_1_name']
+        player1 = User(username=n1, total_points=0, r1_points=0, r2_points=0, free_tokens=0, current_turn=True)
+        player1.save()
+
+    n2 = ''
+    if 'player_2_name' in request.POST:
+        n2 = request.POST['player_2_name']
+        player2 = User(username=n2, total_points=0, r1_points=0, r2_points=0, free_tokens=0, current_turn=False)
+        player2.save()
+
     context = {
         'button_text': 'Start Game',
         'button_1_text': 'Question Manager',
+        'button_2_text': 'Reset Game',
+        'player_1_name': n1,
+        'player_2_name': n2,
+        'url': '/home/',
     }
     return HttpResponse(template.render(context, request))
 
 
 @require_http_methods(["GET"])
 def wheel(request):
+    all_entries = User.objects.all()
+    points = [all_entries[len(all_entries)-2].pointTable(), all_entries[len(all_entries)-1].pointTable()]
+
     template = loader.get_template('wheel.html')
     context = {
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
-        'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM))
+        'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM)),
+        'player_points': points,
     }
     return HttpResponse(template.render(context, request))
 
@@ -77,10 +105,8 @@ def question(request):
     context = {
         'question_text': question,
         'answer_text': answer,
-        'button_1_text': 'Right',
-        'button_1_color': 'green',
-        'button_2_text': 'Wrong',
-        'button_2_color': 'red',
+        'right_url': '/updateScore/right/',
+        'wrong_url': '/updateScore/wrong/',
     }
     return HttpResponse(template.render(context, request))
 
@@ -104,12 +130,33 @@ def addNewQuestion(request):
 
     return HttpResponseRedirect('/questionManager/')
 
+@require_http_methods(['POST'])
+def right(request):
+    players = User.objects.all()
+    currentPlayer = players[len(players)-2]
+
+    updateScore(currentPlayer, 100)
+    return HttpResponseRedirect('/wheel/')
+
+@require_http_methods(['POST'])
+def wrong(request):
+    players = User.objects.all()
+    currentPlayer = players[len(players)-2]
+
+    updateScore(currentPlayer, -100)
+    return HttpResponseRedirect('/wheel/')
+
+def updateScore(user, points):
+    user.r1_points = user.r1_points + points
+    user.total_points = user.total_points + points
+    user.save()
+
 
 @require_http_methods(["GET"])
 def questionManager(request):
     template = loader.get_template('questionManager.html')
     context = {
         'button_text': 'Go Back',
-        'url': '/new_question/',
+        'url': '/newQuestion/',
     }
     return HttpResponse(template.render(context, request))
