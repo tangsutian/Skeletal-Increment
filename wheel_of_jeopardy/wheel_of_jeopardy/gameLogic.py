@@ -1,7 +1,7 @@
 from django.shortcuts import render, render_to_response
 
 # Create your views here.    
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.template import loader
 
@@ -10,6 +10,9 @@ import random
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 MAXSECTORNUM = 12
+
+from wheel_of_jeopardy.models import Category, Question
+
 
 @require_http_methods(["GET"])
 def home(request):
@@ -27,7 +30,7 @@ def wheel(request):
     context = {
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
-        'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM+1))
+        'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM))
     }
     return HttpResponse(template.render(context, request))
 
@@ -66,10 +69,14 @@ def board(request):
 
 @require_http_methods(["GET"])
 def question(request):
-    question = 'How much wood could a wood chuck chuck if a wood chuck could chuck wood?'
+    all_entries = Question.objects.all()
+    lastquestion = all_entries[len(all_entries)-1]
+    question = lastquestion.question_text
+    answer = lastquestion.answer_text
     template = loader.get_template('question.html')
     context = {
         'question_text': question,
+        'answer_text': answer,
         'button_1_text': 'Right',
         'button_1_color': 'green',
         'button_2_text': 'Wrong',
@@ -77,10 +84,32 @@ def question(request):
     }
     return HttpResponse(template.render(context, request))
 
+@require_http_methods(['POST'])
+def addNewQuestion(request):
+    category1 = Category(
+            category_title='Example Question'
+        )
+    category1.save()
+
+    question1 = Question(
+            question_text=request.POST['question'], 
+            answer_text=request.POST['answer'], 
+            category=category1, 
+            point_value=200, 
+            asked=False,
+            round_number=Question.ROUND_ONE,
+            game_session=None,
+        )
+    question1.save()
+
+    return HttpResponseRedirect('/questionManager/')
+
+
 @require_http_methods(["GET"])
 def questionManager(request):
     template = loader.get_template('questionManager.html')
     context = {
         'button_text': 'Go Back',
+        'url': '/new_question/',
     }
     return HttpResponse(template.render(context, request))

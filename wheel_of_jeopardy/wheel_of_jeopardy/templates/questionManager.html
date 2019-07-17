@@ -5,6 +5,16 @@
 <title>Home Page</title>
 </head>
 <body>
+
+	<form action="{{ url }}" method="post">
+		{% csrf_token %}
+    	<label for="question">Question: </label>
+    	<input id="question" type="text" name="question" value="{{ question_text }}">
+
+    	<label for="answer">Answer: </label>
+    	<input id="answer" type="text" name="answer" value="{{ answer_text }}">
+    	<input type="submit" value="OK">
+	</form>
 <button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'home' %}';">{{ button_text }}</button>
 </body>
 </html>
