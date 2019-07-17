@@ -1,9 +1,10 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, redirect
 
 # Create your views here.    
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.template import loader
+from .forms import startGameForm
 
 import os
 import random
@@ -14,7 +15,9 @@ MAXSECTORNUM = 12
 @require_http_methods(["GET"])
 def home(request):
     template = loader.get_template('home.html')
+    form = startGameForm()
     context = {
+        'form': form,
         'button_text': 'Start Game',
         'button_1_text': 'Question Manager',
     }
@@ -24,10 +27,15 @@ def home(request):
 @require_http_methods(["GET"])
 def wheel(request):
     template = loader.get_template('wheel.html')
+    user_1 = request.session.get('user_1')
+    user_2 = request.session.get('user_2')
     context = {
+        'user_1': user_1,
+        'user_2': user_2,
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
         'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM+1))
+
     }
     return HttpResponse(template.render(context, request))
 
@@ -84,3 +92,18 @@ def questionManager(request):
         'button_text': 'Go Back',
     }
     return HttpResponse(template.render(context, request))
+
+@require_http_methods(["POST"])
+def start_game_session(request):
+    '''
+    Called when startGame form is submitted from home page. Stores data to session and redirects to wheel
+
+    :param request: Should contain fields for user names and other pre game information
+    :return: returns a redirect response to the game wheel
+    '''
+    user1_name = request.POST.get('user1')
+    user2_name = request.POST.get('user2')
+    request.session['user_1'] = user1_name
+    request.session['user_2'] = user2_name
+    response = redirect('wheel')
+    return response
