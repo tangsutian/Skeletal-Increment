@@ -13,17 +13,23 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.urls import include, path
 from django.contrib import admin
 admin.autodiscover()
 from wheel_of_jeopardy import gameLogic
 
 
+extra_patterns = [
+    path('', gameLogic.wheel, name='wheel'),
+    path('spin/<int:sector_id>/', gameLogic.spin, name='spin'),
+]
+
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^home/', gameLogic.home, name='home'),
-    url(r'^wheel/', gameLogic.wheel, name='wheel'),
-    url(r'^spin/', gameLogic.spin, name='spin'),
-    url(r'^board/', gameLogic.board, name='board'),
-    url(r'^question/', gameLogic.question, name='question')
+    path('home/', gameLogic.home, name='home'),
+    path('wheel/', include(extra_patterns)),
+    path('board/', gameLogic.board, name='board'),
+    path('question/', gameLogic.question, name='question'),
+    path('questionManager/', gameLogic.questionManager, name='questionManager'),
+    path('', gameLogic.home, name='home'),
 ]

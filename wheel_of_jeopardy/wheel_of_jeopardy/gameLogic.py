@@ -6,15 +6,17 @@ from django.views.decorators.http import require_http_methods
 from django.template import loader
 
 import os
+import random
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-
+MAXSECTORNUM = 12
 
 @require_http_methods(["GET"])
 def home(request):
     template = loader.get_template('home.html')
     context = {
         'button_text': 'Start Game',
+        'button_1_text': 'Question Manager',
     }
     return HttpResponse(template.render(context, request))
 
@@ -25,16 +27,17 @@ def wheel(request):
     context = {
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
-        'button_link': 'wheel/selection',
+        'button_link': 'wheel/spin/%d' % (random.randint(1,MAXSECTORNUM+1))
     }
     return HttpResponse(template.render(context, request))
 
 
 @require_http_methods(["GET"])
-def spin(request):
+def spin(request, sector_id):
     template = loader.get_template('wheel2.html')
     context = {
         'sector_color': '#bab',
+        'sector_spun': sector_id,
         'button_text': 'Go to Game Board',
         'button_link': 'board',
     }
@@ -71,5 +74,13 @@ def question(request):
         'button_1_color': 'green',
         'button_2_text': 'Wrong',
         'button_2_color': 'red',
+    }
+    return HttpResponse(template.render(context, request))
+
+@require_http_methods(["GET"])
+def questionManager(request):
+    template = loader.get_template('questionManager.html')
+    context = {
+        'button_text': 'Go Back',
     }
     return HttpResponse(template.render(context, request))
