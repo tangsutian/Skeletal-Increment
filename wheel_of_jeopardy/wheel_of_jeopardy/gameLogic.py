@@ -101,9 +101,7 @@ def start_game_session(request):
     :param request: Should contain fields for user names and other pre game information
     :return: returns a redirect response to the game wheel
     '''
-    user1_name = request.POST.get('user1')
-    user2_name = request.POST.get('user2')
-    request.session['user_1'] = user1_name
-    request.session['user_2'] = user2_name
+    request.session['user_1'] = request.POST.get('user_1')
+    request.session['user_2'] = request.POST.get('user_2')
     response = redirect('wheel')
     return response
