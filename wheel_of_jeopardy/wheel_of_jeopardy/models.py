@@ -41,18 +41,6 @@ class User(models.Model):
 class GameWheel(models.Model):
 
     wheel_sectors = models.TextField(null=True);
-    # sector1 = models.CharField(max_length=30)#, default='lose_turn')
-    # sector2 = models.CharField(max_length=30)#, default='free_turn')
-    # sector3 = models.CharField(max_length=30)#, default='bankrupt')
-    # sector4 = models.CharField(max_length=30)#, default='player_choice')
-    # sector5 = models.CharField(max_length=30)#, default='opponent_choice')
-    # sector6 = models.CharField(max_length=30)#, default='double_score')
-    # sector7 = models.CharField(max_length=30)
-    # sector8 = models.CharField(max_length=30)
-    # sector9 = models.CharField(max_length=30)
-    # sector10 = models.CharField(max_length=30)
-    # sector11 = models.CharField(max_length=30)
-    # sector12 = models.CharField(max_length=30)
 
 
     @classmethod
@@ -61,22 +49,6 @@ class GameWheel(models.Model):
         sample_categories = ['soccer', 'football', 'tennis', 'baseball', 'basketball', 'lacrosse']
         wheel = cls(wheel_sectors=json.dumps(event_list+sample_categories))
         return wheel
-
-    # @classmethod
-    # def create(cls):
-    #     wheel = cls(sector1="lose_turn", sector2="free_turn", sector3="bankrupt", sector4="player_choice",
-    #                 sector5="opponent_choice", sector6="double_score", sector7="soccer", sector8="football",
-    #                 sector9="tennis", sector10="baseball", sector11="basketball", sector12="lacrosse")
-    #     return wheel
-
-    # @classmethod
-    # def create(cls, categories):
-    #     '''
-    #
-    #
-    #     :param categories: - should be list of length=6 with categories.
-    #     :return:
-    #     '''
 
     def get_spin_result(self):
         jsonDec = json.decoder.JSONDecoder()

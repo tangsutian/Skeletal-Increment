@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.template import loader
 from .forms import startGameForm
-from .models import GameSession, User, GameWheel
+from .models import GameSession, User, GameWheel, Category
 
 import os
 import random
@@ -109,6 +109,7 @@ def start_game_session(request):
     user1.save()
     user2 = User.create(request.POST.get('user_2'))
     user2.save()
+    categories = [request.POST.get('category_1')]
     game_session = GameSession.create(user1, user2)
     game_session.save()
     game_wheel = GameWheel.create()

@@ -1,0 +1,30 @@
+- model: wheel_of_jeopardy.Category
+  pk: 1
+  fields:
+    category_title: soccer
+
+- model: wheel_of_jeopardy.Category
+  pk: 2
+  fields:
+    category_title: football
+
+- model: wheel_of_jeopardy.Category
+  pk: 3
+  fields:
+    category_title: tennis
+
+- model: wheel_of_jeopardy.Category
+  pk: 4
+  fields:
+    category_title: hockey
+
+- model: wheel_of_jeopardy.Category
+  pk: 5
+  fields:
+    category_title: basketball
+
+- model: wheel_of_jeopardy.Category
+  pk: 6
+  fields:
+    category_title: baseball
+
