@@ -1,4 +1,6 @@
 from django.db import models
+from random import randint
+import simplejson as json
 
 
 class Category(models.Model):
@@ -16,15 +18,9 @@ class Question(models.Model):
     during the game.
     '''
     question_text = models.CharField(max_length=200)
+    answer_text = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
-
-class Answer(models.Model):
-    '''
-    Stores the answer to a question. One-to-one relationship with Question.
-    '''
-    answer_text = models.CharField(max_length=200)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
 
 
 class User(models.Model):
@@ -32,11 +28,39 @@ class User(models.Model):
     Stores information for a user.
     '''
     username = models.CharField(max_length=20)
-    total_points = models.IntegerField
-    r1_points = models.IntegerField
-    r2_points = models.IntegerField
-    free_tokens = models.IntegerField
-    current_turn = models.BooleanField
+    r1_points = models.IntegerField(verbose_name="round1 points")
+    r2_points = models.IntegerField()
+    free_tokens = models.IntegerField()
+
+    @classmethod
+    def create(cls, username):
+        user = cls(username=username, r1_points=int(0), r2_points=int(0), free_tokens=int(0))
+        return user
+
+
+class GameWheel(models.Model):
+
+    wheel_sectors = models.TextField(null=True);
+
+
+    @classmethod
+    def create(cls):
+        event_list = ['lose_turn', 'free_turn', 'bankrupt', 'player_choice', 'opponent_choice', 'double_score']
+        sample_categories = ['soccer', 'football', 'tennis', 'baseball', 'basketball', 'lacrosse']
+        wheel = cls(wheel_sectors=json.dumps(event_list+sample_categories))
+        return wheel
+
+    def get_spin_result(self):
+        jsonDec = json.decoder.JSONDecoder()
+        sector_list = jsonDec.decode(self.wheel_sectors)
+        x = randint(0,11)
+        return {x, sector_list[randint(0, 11)]}
+
+    def get_sector(self, x):
+        jsonDec = json.decoder.JSONDecoder()
+        sector_list = jsonDec.decode(self.wheel_sectors)
+        return sector_list[x]
+
 
 
 class GameSession(models.Model):
@@ -45,7 +69,23 @@ class GameSession(models.Model):
     '''
     #TODO: discuss desire on delete behavior and proper form of related_names
     #current_user = models.CharField(max_length=30) Should this be handles in the db?
-    turns_remaining = models.IntegerField
-    User1_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name='one')
+    turn_number = 60
+    User1_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="one")
     User2_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="two")
+
+
+    @classmethod
+    def create(cls, user1, user2):
+        session = cls(User1_profile=user1, User2_profile=user2)
+        return session
+
+
+    # def __init__(self, user1, user2):
+    #     self.user1 = user1
+    #     self.user2 = user2
+    #     self.cur_rount = 0
+    #     self.gameWheel = gameWheel()
+
+
+
 

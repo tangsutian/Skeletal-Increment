@@ -26,6 +26,7 @@ extra_patterns = [
 
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('home/', gameLogic.home, name='home'),
     path('wheel/', include(extra_patterns)),
     path('board/', gameLogic.board, name='board'),
