@@ -17,6 +17,11 @@ MAXSECTORNUM = 11
 def home(request):
     template = loader.get_template('home.html')
     form = startGameForm()
+
+    GameSession.delete()
+
+    category = Category.create('sports')
+    category.save()
     context = {
         'form': form,
         'button_text': 'Start Game',
@@ -28,14 +33,19 @@ def home(request):
 @require_http_methods(["GET"])
 def wheel(request):
     template = loader.get_template('wheel.html')
-    user_1 = request.session.get('user_1')
-    user_2 = request.session.get('user_2')
+    gs = GameSession.objects.all()[0]
+    gs.updatePlayersTurn()
+    user_1 = gs.User1_profile
+    user_2 = gs.User2_profile
+
     context = {
-        'user_1': user_1,
-        'user_2': user_2,
+        'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
-        'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM))
+        'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
+        'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score'],
+        'data': [[user_1.username, user_1.getRoundScore(1), user_1.getRoundScore(2), user_1.getTotalScore()],
+                [user_2.username, user_2.getRoundScore(1), user_2.getRoundScore(2), user_2.getTotalScore()]],
 
     }
     return HttpResponse(template.render(context, request))
@@ -86,6 +96,9 @@ def question(request):
         'button_1_color': 'green',
         'button_2_text': 'Wrong',
         'button_2_color': 'red',
+        'button_link_1': 'right',
+        'button_link_2': 'right',
+        'point_total': '100',
     }
     return HttpResponse(template.render(context, request))
 
@@ -98,6 +111,32 @@ def questionManager(request):
     return HttpResponse(template.render(context, request))
 
 @require_http_methods(["POST"])
+def uploadCSV(request):
+    template = loader.get_template('questionManager.html')
+    context = {
+        'button_text': 'Go Back',
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@require_http_methods(["GET"])
+def right(request, sector_id):
+    response = redirect('wheel')
+    gs = GameSession.objects.all()[0]
+    gs.updatePlayerScore(sector_id)
+
+    return response
+
+@require_http_methods(["GET"])
+def wrong(request, sector_id):
+    gs = GameSession.objects.all()[0]
+    gs.updatePlayersTurn()
+    gs.updatePlayerScore(sector_id * -1)
+    gs.nextTurn()
+    response = redirect('wheel')
+    return response
+
+@require_http_methods(["POST"])
 def start_game_session(request):
     '''
     Called when startGame form is submitted from home page. Stores data to session and redirects to wheel
@@ -105,9 +144,9 @@ def start_game_session(request):
     :param request: Should contain fields for user names and other pre game information
     :return: returns a redirect response to the game wheel
     '''
-    user1 = User.create(request.POST.get('user_1'))
+    user1 = User.create(request.POST.get('user_1'), True)
     user1.save()
-    user2 = User.create(request.POST.get('user_2'))
+    user2 = User.create(request.POST.get('user_2'), False)
     user2.save()
     categories = [request.POST.get('category_1')]
     game_session = GameSession.create(user1, user2)

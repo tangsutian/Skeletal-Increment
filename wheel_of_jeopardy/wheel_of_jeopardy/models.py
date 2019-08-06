@@ -9,6 +9,15 @@ class Category(models.Model):
     '''
     category_title = models.CharField(max_length=200)
 
+    @classmethod
+    def create(cls, category):
+        category = cls(category_title=category)
+        return category
+
+    @classmethod
+    def deleteAll(cls):
+        Category.objects.all().delete()
+
 
 class Question(models.Model):
     '''
@@ -22,6 +31,15 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
 
+    @classmethod
+    def create(cls, q_text, a_text, category, session):
+        question = cls(question_text=q_text, answer_text=a_text, category=category, game_session=session)
+        return question
+
+    @classmethod
+    def deleteAll(cls):
+        Question.objects.all().delete()
+
 
 class User(models.Model):
     '''
@@ -31,17 +49,49 @@ class User(models.Model):
     r1_points = models.IntegerField(verbose_name="round1 points")
     r2_points = models.IntegerField()
     free_tokens = models.IntegerField()
+    current_turn = models.BooleanField()
 
     @classmethod
-    def create(cls, username):
-        user = cls(username=username, r1_points=int(0), r2_points=int(0), free_tokens=int(0))
+    def create(cls, username, turn):
+        user = cls(username=username, r1_points=int(0), r2_points=int(0), free_tokens=int(0), current_turn=turn)
         return user
+
+    @classmethod
+    def deleteAll(cls):
+        User.objects.all().delete()
+
+    def getTotalScore(self):
+        return self.r1_points + self.r2_points
+
+    def getRoundScore(self, round):
+        if round == 1:
+            return self.r1_points
+        elif round == 2:
+            return self.r2_points
+        else:
+            return 0
+
+    def updateRoundScore(self, round, addn):
+        if round == 1:
+            self.r1_points + addn
+        elif round == 2:
+            self.r2_points + addn
+
+    def getFreeTokenNumber(self):
+        return self.free_tokens
+
+    def setTurnState(self, state):
+        self.current_turn = state
+
+    def equals(self, user):
+        if self.username is user.username:
+            return True
+        return False
 
 
 class GameWheel(models.Model):
 
     wheel_sectors = models.TextField(null=True);
-
 
     @classmethod
     def create(cls):
@@ -70,14 +120,52 @@ class GameSession(models.Model):
     #TODO: discuss desire on delete behavior and proper form of related_names
     #current_user = models.CharField(max_length=30) Should this be handles in the db?
     turn_number = 60
+    current_round = 1
     User1_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="one")
     User2_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="two")
-
 
     @classmethod
     def create(cls, user1, user2):
         session = cls(User1_profile=user1, User2_profile=user2)
         return session
+
+    @classmethod
+    def delete(cls):
+        GameSession.objects.all().delete()
+        Question.deleteAll()
+        Category.deleteAll()
+
+    def nextTurn(self):
+        turn_number = turn_number - 1
+
+    def turnsLeft(self):
+        if turn_number > 0:
+            return True
+        return False
+
+    def getPlayerTurn(self):
+        if self.User1_profile.current_turn is True:
+            return self.User1_profile
+        return self.User2_profile
+
+    def updatePlayersTurn(self):
+        val = self.User1_profile.current_turn
+        self.User1_profile.current_turn = self.User2_profile.current_turn
+        self.User2_profile.current_turn = val
+
+        print(self.User1_profile.username)
+        print(self.User1_profile.current_turn)
+
+        print(self.User2_profile.username)
+        print(self.User2_profile.current_turn)
+        self.User1_profile.save()
+        self.User2_profile.save()
+
+    def updatePlayerScore(self, points):
+        curr_player = self.getPlayerTurn()
+        current_round = 1
+        curr_player.updateRoundScore(current_round, points)
+        curr_player.save()
 
 
     # def __init__(self, user1, user2):
@@ -85,7 +173,6 @@ class GameSession(models.Model):
     #     self.user2 = user2
     #     self.cur_rount = 0
     #     self.gameWheel = gameWheel()
-
 
 
 
