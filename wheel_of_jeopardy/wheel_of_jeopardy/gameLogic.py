@@ -59,16 +59,17 @@ def spin(request, sector_id):
 @require_http_methods(["GET"])
 def board(request):
     template = loader.get_template('board.html')
+    categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
     values = []
     for i in range(0, 5):
         values.append(str(i * 200 + 200))
     context = {
-        'category_1': 'Animals',
-        'category_2': 'Sports',
-        'category_3': 'Cars',
-        'category_4': 'Books',
-        'category_5': 'Programming Languages',
-        'category_6': 'TV/ Movies',
+        'category_1': categories[0],
+        'category_2': categories[1],
+        'category_3': categories[2],
+        'category_4': categories[3],
+        'category_5': categories[4],
+        'category_6': categories[5],
         'point_totals': values,
         'num_columns': [1, 1, 1, 1, 1, 1],
         'button_text': 'Show Question!',

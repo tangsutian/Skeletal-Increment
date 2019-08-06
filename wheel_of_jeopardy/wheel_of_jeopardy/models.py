@@ -78,6 +78,14 @@ class GameWheel(models.Model):
         sector_list = jsonDec.decode(self.wheel_sectors)
         return sector_list[x]
 
+    def get_categories(self):
+        '''
+        Retrieves category names
+        :return: - list of category titles (list length=6)
+        '''
+        jsonDec = json.decoder.JSONDecoder()
+        sector_list = jsonDec.decode(self.wheel_sectors)
+        return sector_list[6:]
 
 
 class GameSession(models.Model):
