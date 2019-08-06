@@ -109,10 +109,11 @@ def start_game_session(request):
     user1.save()
     user2 = User.create(request.POST.get('user_2'))
     user2.save()
-    categories = [request.POST.get('category_1')]
+    categories = [request.POST.get('category_1'), request.POST.get('category_2'), request.POST.get('category_3'),
+                  request.POST.get('category_4'), request.POST.get('category_5'), request.POST.get('category_6'), ]
     game_session = GameSession.create(user1, user2)
     game_session.save()
-    game_wheel = GameWheel.create()
+    game_wheel = GameWheel.create(categories)
     game_wheel.save()
     request.session['gameSession'] = game_session.id
     request.session['gameWheel'] = game_wheel.id

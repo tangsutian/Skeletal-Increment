@@ -39,16 +39,33 @@ class User(models.Model):
 
 
 class GameWheel(models.Model):
-
+    event_list = ['lose_turn', 'free_turn', 'bankrupt', 'player_choice', 'opponent_choice', 'double_score']
     wheel_sectors = models.TextField(null=True);
 
 
     @classmethod
     def create(cls):
-        event_list = ['lose_turn', 'free_turn', 'bankrupt', 'player_choice', 'opponent_choice', 'double_score']
+        '''
+        Default create method with hardcoded categories
+        :return: - populated wheel object
+        '''
+
         sample_categories = ['soccer', 'football', 'tennis', 'baseball', 'basketball', 'lacrosse']
-        wheel = cls(wheel_sectors=json.dumps(event_list+sample_categories))
+        wheel = cls(wheel_sectors=json.dumps(cls.event_list+sample_categories))
         return wheel
+
+    @classmethod
+    def create(cls, categories):
+        '''
+        Alternate constructor accepts a list of categories. To be used with startGame form
+        :param categories: - list of categorie names of length=6
+        :return: - populated wheel object
+        '''
+        if not isinstance(categories, list):
+            return -1
+        wheel = cls(wheel_sectors=json.dumps(cls.event_list+categories))
+        return wheel
+
 
     def get_spin_result(self):
         jsonDec = json.decoder.JSONDecoder()
