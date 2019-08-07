@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bankrupt</title>
+<style>
+.dot {
+	height: 25px;
+	width: 25px;
+	background: {{ 'sector_color' }};
+	display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<span class="dot"></span>
+<h1>You've rolled the bankrupt sector :(. Setting round your round points to 0.</h1>
+
+<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
+</body>
+</html>
