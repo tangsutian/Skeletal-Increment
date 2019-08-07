@@ -37,4 +37,6 @@ urlpatterns = [
     path('questionManager/upload/', gameLogic.uploadCSV, name='upload'),
     path('', gameLogic.home, name='home'),
     path('startGameSession/', gameLogic.start_game_session, name='startGame'),
+    path('token/', gameLogic.token1, name='token'),
+    path('decrementToken/', gameLogic.token2, name='dectoken'),
 ]

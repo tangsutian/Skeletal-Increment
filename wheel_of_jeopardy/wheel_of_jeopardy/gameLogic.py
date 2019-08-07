@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.template import loader
 from .forms import startGameForm
 from .models import GameSession, User, GameWheel, Category, Question
+from django.views.generic import TemplateView
 
 import os
 import random
@@ -130,12 +131,15 @@ def right(request, sector_id):
 
 @require_http_methods(["GET"])
 def wrong(request, sector_id):
-    response = redirect('wheel')
-
     gs = GameSession.objects.all()[0]
     gs.updatePlayerScore(sector_id * -1)
+
+    if gs.getPlayerTokensLeft():
+        response = redirect('token')
+    else:
+        response = redirect('wheel')
+
     gs.updatePlayersTurn()
-    
     return response
 
 @require_http_methods(["POST"])
@@ -165,6 +169,7 @@ def start_game_session(request):
         q.save()
         print(q)
 
+    game_session.incrementPlayerTokenNumber()
     game_wheel = GameWheel.create(categories)
     game_wheel.save()
     request.session['gameSession'] = game_session.id
@@ -183,4 +188,23 @@ def handleQuestionCSV(file, gs):
         cat.save()
         question = Question.create(s[3],s[4],cat,int(s[1]),gs)
         question.save()
-            
+
+
+@require_http_methods(["GET"])        
+def token1(request):
+    template = loader.get_template('token.html')
+    context = {
+        'button_link_1': 'decrementToken',
+        'button_link_2': 'wheel',
+        'button_1_text': 'Yes',
+        'button_2_text': 'No',
+        'question_text': 'Would you like to use a free turn token? You have %d left' % GameSession.objects.all()[0].getOtherPlayerTokensLeft()
+    }
+    return HttpResponse(template.render(context, request))
+
+@require_http_methods(["GET"])        
+def token2(request):
+    gs = GameSession.objects.all()[0]
+    gs.updatePlayersTurn()
+    gs.decrementPlayerTokenNumber()
+    return redirect('wheel')
