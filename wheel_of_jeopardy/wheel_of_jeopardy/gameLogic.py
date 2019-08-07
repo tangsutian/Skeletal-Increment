@@ -55,16 +55,45 @@ def wheel(request):
 def spin(request, sector_id):
     template = loader.get_template('wheel2.html')
     wheel = GameWheel.objects.get(pk=request.session['gameWheel'])
-    category = wheel.get_sector(sector_id)
-    context = {
-        'sector_color': '#bab',
-        'sector_spun': sector_id,
-        'category': category,
-        'button_text': 'Go to Game Board',
-        'button_link': 'board',
-    }
+
+
+    print("wheel.get_categories(): " + str(wheel.get_categories()))
+    sector_obj = wheel.get_sector(sector_id)
+    print("GET spin() called with sector_id: " + str(sector_id))
+
+    if isinstance(sector_obj, dict): # If the wheel spin was a category, forward right to the question page
+        category = sector_obj["category_title"]
+        get_info = request.GET.copy()
+        get_info["category"] = category
+        request.GET = get_info
+        return question(request)
+    else:     #Logic for routing cases for bankrupt, double points, player's choice, opponent's choice, free turn, lose turn should go here
+        if sector_obj == "bankrupt":
+            return bankrupt(request)
+        else:
+            context = {
+                'sector_color': '#bab',
+                'sector_spun': sector_id,
+                'category': sector_obj,
+                'button_text': 'Go to Game Board',
+                'button_link': 'board',
+            }
+
     return HttpResponse(template.render(context, request))
 
+def bankrupt(request):
+    template = loader.get_template("bankrupt.html")
+    gss = GameSession.objects.all()
+    print(gss)
+    gs = gss[0]
+    gs.clearPlayerRoundScore()
+    gs.updatePlayersTurn()
+    context = {
+        'sector_color': '#bab',
+        'button_text': 'Next Turn',
+        'button_link': 'wheel',
+    }
+    return HttpResponse(template.render(context, request))
 
 @require_http_methods(["GET"])
 def board(request):
@@ -89,9 +118,16 @@ def board(request):
 
 @require_http_methods(["GET"])
 def question(request):
+    category = request.GET.get('category', '')
+    if(category):
+        print("GET question() called with category: " + category)
+    else:
+        print("ERROR! Question page called without a category")
+
     question = 'How much wood could a wood chuck chuck if a wood chuck could chuck wood?'
     template = loader.get_template('question.html')
     context = {
+        'category': category,
         'question_text': question,
         'button_1_text': 'Right',
         'button_1_color': 'green',

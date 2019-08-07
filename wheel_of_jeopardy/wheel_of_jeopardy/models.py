@@ -88,6 +88,12 @@ class User(models.Model):
         else:
             return 0
 
+    def resetRoundScore(self, round):
+        if round is 1:
+            self.r1_points = 0
+        elif round is 2:
+            self.r2_points = 0
+
     def updateRoundScore(self, round, addn):
         if round is 1:
             self.r1_points = self.r1_points + addn
@@ -158,6 +164,8 @@ class GameWheel(models.Model):
         sector_list = jsonDec.decode(self.wheel_sectors)
         return sector_list[x]
 
+
+
     def get_categories(self):
         '''
         Retrieves category names
@@ -165,7 +173,8 @@ class GameWheel(models.Model):
         '''
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
-        return sector_list[6:]
+        category_list = sector_list[6:]
+        return category_list
 
 
 class GameSession(models.Model):
@@ -237,10 +246,15 @@ class GameSession(models.Model):
         self.User1_profile.save()
         self.User2_profile.save()
 
+    def clearPlayerRoundScore(self):
+        player_to_update = self.getPlayerTurn()
+        self.nextTurn()
+        player_to_update.resetRoundScore(self.current_round)
+
+
     def updatePlayerScore(self, points):
         player_to_update = self.getPlayerTurn()
         self.nextTurn()
-
         player_to_update.updateRoundScore(self.current_round, points)
         player_to_update.save()
         self.save()
