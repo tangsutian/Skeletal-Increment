@@ -44,8 +44,7 @@ def wheel(request):
         'button_text': 'Spin Wheel',
         'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
         'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score'],
-        'data': [[user_1.username, user_1.getRoundScore(1), user_1.getRoundScore(2), user_1.getTotalScore()],
-                [user_2.username, user_2.getRoundScore(1), user_2.getRoundScore(2), user_2.getTotalScore()]],
+        'data': gs.getPlayerScoreData(),
 
     }
     return HttpResponse(template.render(context, request))
@@ -97,7 +96,7 @@ def question(request):
         'button_2_text': 'Wrong',
         'button_2_color': 'red',
         'button_link_1': 'right',
-        'button_link_2': 'right',
+        'button_link_2': 'wrong',
         'point_total': '100',
     }
     return HttpResponse(template.render(context, request))
@@ -131,6 +130,7 @@ def right(request, sector_id):
 def wrong(request, sector_id):
     gs = GameSession.objects.all()[0]
     gs.updatePlayersTurn()
+    print(sector_id*-1)
     gs.updatePlayerScore(sector_id * -1)
     gs.nextTurn()
     response = redirect('wheel')

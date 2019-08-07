@@ -72,10 +72,11 @@ class User(models.Model):
             return 0
 
     def updateRoundScore(self, round, addn):
-        if round == 1:
-            self.r1_points + addn
-        elif round == 2:
-            self.r2_points + addn
+        if round is 1:
+            self.r1_points = self.r1_points + addn
+        elif round is 2:
+            self.r2_points = self.r2_points + addn
+
 
     def getFreeTokenNumber(self):
         return self.free_tokens
@@ -87,6 +88,12 @@ class User(models.Model):
         if self.username is user.username:
             return True
         return False
+
+    def getPlayerScoreRow(self):
+        return [self.username, self.r1_points, self.r2_points, self.getTotalScore()]
+
+    def toString(self):
+        return 'User-\n\tname: %s\n\tround 1 score: %d\n\tround 2 score: %d\n\tNum Free Tokens: %d\n\tCurrent Turn: %s' % (self.username, self.r1_points, self.r2_points, self.free_tokens, self.current_turn)
 
 
 class GameWheel(models.Model):
@@ -136,10 +143,10 @@ class GameSession(models.Model):
         Category.deleteAll()
 
     def nextTurn(self):
-        turn_number = turn_number - 1
+        self.turn_number = self.turn_number - 1
 
     def turnsLeft(self):
-        if turn_number > 0:
+        if self.turn_number > 0:
             return True
         return False
 
@@ -153,19 +160,17 @@ class GameSession(models.Model):
         self.User1_profile.current_turn = self.User2_profile.current_turn
         self.User2_profile.current_turn = val
 
-        print(self.User1_profile.username)
-        print(self.User1_profile.current_turn)
-
-        print(self.User2_profile.username)
-        print(self.User2_profile.current_turn)
         self.User1_profile.save()
         self.User2_profile.save()
 
     def updatePlayerScore(self, points):
-        curr_player = self.getPlayerTurn()
-        current_round = 1
-        curr_player.updateRoundScore(current_round, points)
-        curr_player.save()
+        player_to_update = self.getPlayerTurn()
+
+        player_to_update.updateRoundScore(self.current_round, points)
+        player_to_update.save()
+
+    def getPlayerScoreData(self):
+        return [self.User1_profile.getPlayerScoreRow(), self.User2_profile.getPlayerScoreRow()]
 
 
     # def __init__(self, user1, user2):
