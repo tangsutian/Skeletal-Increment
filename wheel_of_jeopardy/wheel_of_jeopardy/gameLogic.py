@@ -113,11 +113,11 @@ def questionManager(request):
 
 @require_http_methods(["POST"])
 def uploadCSV(request):
-    template = loader.get_template('questionManager.html')
+    response = redirect('home')
     context = {
         'button_text': 'Go Back',
     }
-    return HttpResponse(template.render(context, request))
+    return response
 
 
 @require_http_methods(["GET"])
