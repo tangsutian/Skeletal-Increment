@@ -13,11 +13,37 @@
 </style>
 </head>
 <body>
-
+<h1>{{ title }}</h1>
 <span class="dot"></span>
-<li>{{ user_1 }}</li>
-<li>{{ user_2 }}</li>
+<li>{{ current_player }}</li>
+<li>{{ number_turns }}</li>
 <button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link }}';">{{ button_text }}</button>
-<!--button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link }}';">{{ button_text }}</button-->
+
+<table>
+	<thead>
+		<tr>
+			<th></th>
+			{% for class in classes %}
+				<th colspan="3">{{ class }}</th>
+			{% endfor %}
+		</tr>
+
+<!-- something similar for checkpoints -->
+	</thead>
+	<tbody>
+		{% for row in data %}
+			<tr>
+				{% for item in row %}
+					{% if not forloop.counter0 %}
+						<th>{{ item }}</th>
+					{% else %}
+						<td>{{ item }}</td>
+					{% endif %}
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
 </body>
 </html>

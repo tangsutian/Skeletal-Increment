@@ -22,6 +22,8 @@ from wheel_of_jeopardy import gameLogic
 extra_patterns = [
     path('', gameLogic.wheel, name='wheel'),
     path('spin/<int:sector_id>/', gameLogic.spin, name='spin'),
+    path('right/<int:sector_id>/', gameLogic.right, name='right'),
+    path('wrong/<int:sector_id>/', gameLogic.wrong, name='wrong'),
 ]
 
 
@@ -32,6 +34,7 @@ urlpatterns = [
     path('board/', gameLogic.board, name='board'),
     path('question/', gameLogic.question, name='question'),
     path('questionManager/', gameLogic.questionManager, name='questionManager'),
+    path('questionManager/upload/', gameLogic.uploadCSV, name='upload'),
     path('', gameLogic.home, name='home'),
     path('startGameSession/', gameLogic.start_game_session, name='startGame'),
 ]
