@@ -98,6 +98,12 @@ class User(models.Model):
     def getFreeTokenNumber(self):
         return self.free_tokens
 
+    def decrementFreeTokenNumber(self):
+        self.free_tokens = self.free_tokens - 1
+
+    def incrementFreeTokenNumber(self):
+        self.free_tokens = self.free_tokens + 1
+
     def setTurnState(self, state):
         self.current_turn = state
 
@@ -107,7 +113,7 @@ class User(models.Model):
         return False
 
     def getPlayerScoreRow(self):
-        return [self.username, self.r1_points, self.r2_points, self.getTotalScore()]
+        return [self.username, self.r1_points, self.r2_points, self.getTotalScore(), self.free_tokens]
 
     def __str__(self):
         return 'User-\n\tname: %s\n\tround 1 score: %d\n\tround 2 score: %d\n\tNum Free Tokens: %d\n\tCurrent Turn: %s' % (self.username, self.r1_points, self.r2_points, self.free_tokens, self.current_turn)
@@ -197,6 +203,31 @@ class GameSession(models.Model):
         if self.User1_profile.current_turn is True:
             return self.User1_profile
         return self.User2_profile
+
+    def getOtherPlayer(self):
+        if self.User1_profile.current_turn is not True:
+            return self.User1_profile
+        return self.User2_profile
+
+    def getPlayerTokensLeft(self):
+        if self.getPlayerTurn().getFreeTokenNumber() > 0:
+            return True
+        return False
+
+    def decrementPlayerTokenNumber(self):
+        player = self.getPlayerTurn()
+        player.decrementFreeTokenNumber()
+        player.save()
+
+    def incrementPlayerTokenNumber(self):
+        player = self.getPlayerTurn()
+        player.incrementFreeTokenNumber()
+        player.save()
+
+    def getOtherPlayerTokensLeft(self):
+        if self.getOtherPlayer().getFreeTokenNumber() > 0:
+            return True
+        return False
 
     def updatePlayersTurn(self):
         val = self.User1_profile.current_turn
