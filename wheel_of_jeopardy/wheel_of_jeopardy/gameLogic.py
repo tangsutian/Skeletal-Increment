@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.template import loader
 from .forms import startGameForm
-from .models import GameSession, User, GameWheel, Category
+from .models import GameSession, User, GameWheel, Category, Question
 
 import os
 import random
@@ -22,8 +22,6 @@ def home(request):
 
     GameSession.delete()
 
-    category = Category.create('sports')
-    category.save()
     context = {
         'form': form,
         'button_1_text': 'Question Manager',
@@ -114,10 +112,13 @@ def questionManager(request):
 
 @require_http_methods(["POST"])
 def uploadCSV(request):
-    handleQuestionCSV(request.FILES['csv_file'])
+    gss = GameSession.objects.all()
+    gs = None
+    if len(gss) == 1:
+        gs = gss[0]
+    handleQuestionCSV(request.FILES['csv_file'], gs)
     response = redirect('home')
     return response
-
 
 @require_http_methods(["GET"])
 def right(request, sector_id):
@@ -135,7 +136,6 @@ def wrong(request, sector_id):
     gs.updatePlayerScore(sector_id * -1)
     gs.updatePlayersTurn()
     
-    
     return response
 
 @require_http_methods(["POST"])
@@ -150,10 +150,21 @@ def start_game_session(request):
     user1.save()
     user2 = User.create(request.POST.get('user_2'), False)
     user2.save()
-    categories = [request.POST.get('category_1'), request.POST.get('category_2'), request.POST.get('category_3'),
-                  request.POST.get('category_4'), request.POST.get('category_5'), request.POST.get('category_6'), ]
+    categories = [Category.objects.get(pk=request.POST.get('category_1')).category_title,
+                    Category.objects.get(pk=request.POST.get('category_2')).category_title,
+                    Category.objects.get(pk=request.POST.get('category_3')).category_title,
+                    Category.objects.get(pk=request.POST.get('category_4')).category_title,
+                    Category.objects.get(pk=request.POST.get('category_5')).category_title,
+                    Category.objects.get(pk=request.POST.get('category_6')).category_title,]
+
     game_session = GameSession.create(user1, user2)
     game_session.save()
+
+    for q in Question.objects.all():
+        q.game_session = game_session
+        q.save()
+        print(q)
+
     game_wheel = GameWheel.create(categories)
     game_wheel.save()
     request.session['gameSession'] = game_session.id
@@ -162,9 +173,14 @@ def start_game_session(request):
     return response
 
 
-def handleQuestionCSV(file):
+def handleQuestionCSV(file, gs):
     lines = file.read().decode('UTF-8').split('\n')
     for l in lines:
-        s = l.split('`')
-        for t in s:
-            print(t)
+        s = str(l).strip().split('`')
+        if s[3] == 'Question_Text':
+            continue
+        cat = Category.create(s[2])
+        cat.save()
+        question = Question.create(s[3],s[4],cat,int(s[1]),gs)
+        question.save()
+            
