@@ -6,7 +6,6 @@ from django.views.decorators.http import require_http_methods
 from django.template import loader
 from .forms import startGameForm
 from .models import GameSession, User, GameWheel, Category, Question
-from django.views.generic import TemplateView
 
 import os
 import random
@@ -44,7 +43,7 @@ def wheel(request):
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
         'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
-        'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score'],
+        'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score', 'Number of Free Turn Tokens'],
         'data': gs.getPlayerScoreData(),
 
     }
