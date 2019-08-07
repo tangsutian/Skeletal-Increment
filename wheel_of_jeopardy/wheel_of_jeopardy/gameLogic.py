@@ -12,6 +12,8 @@ import random
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 MAXSECTORNUM = 11
+WHEEL_OF_JEOPARDY = 'Wheel of Jeopardy'
+ROUND_TITLE = 'Round Number: '
 
 @require_http_methods(["GET"])
 def home(request):
@@ -24,7 +26,6 @@ def home(request):
     category.save()
     context = {
         'form': form,
-        'button_text': 'Start Game',
         'button_1_text': 'Question Manager',
     }
     return HttpResponse(template.render(context, request))
@@ -34,12 +35,13 @@ def home(request):
 def wheel(request):
     template = loader.get_template('wheel.html')
     gs = GameSession.objects.all()[0]
-    gs.updatePlayersTurn()
     user_1 = gs.User1_profile
     user_2 = gs.User2_profile
 
     context = {
+        'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
         'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
+        'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
         'sector_color': '#baa',
         'button_text': 'Spin Wheel',
         'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
@@ -128,12 +130,13 @@ def right(request, sector_id):
 
 @require_http_methods(["GET"])
 def wrong(request, sector_id):
-    gs = GameSession.objects.all()[0]
-    gs.updatePlayersTurn()
-    print(sector_id*-1)
-    gs.updatePlayerScore(sector_id * -1)
-    gs.nextTurn()
     response = redirect('wheel')
+
+    gs = GameSession.objects.all()[0]
+    gs.updatePlayerScore(sector_id * -1)
+    gs.updatePlayersTurn()
+    
+    
     return response
 
 @require_http_methods(["POST"])

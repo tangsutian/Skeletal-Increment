@@ -126,14 +126,15 @@ class GameSession(models.Model):
     '''
     #TODO: discuss desire on delete behavior and proper form of related_names
     #current_user = models.CharField(max_length=30) Should this be handles in the db?
-    turn_number = 60
-    current_round = 1
+    MAX_NUMBER_OF_TURNS = 50
+    number_turns_left = models.IntegerField()
+    current_round = models.IntegerField()
     User1_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="one")
     User2_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="two")
 
     @classmethod
     def create(cls, user1, user2):
-        session = cls(User1_profile=user1, User2_profile=user2)
+        session = cls(User1_profile=user1, User2_profile=user2, current_round=1, number_turns_left=cls.MAX_NUMBER_OF_TURNS)
         return session
 
     @classmethod
@@ -143,12 +144,14 @@ class GameSession(models.Model):
         Category.deleteAll()
 
     def nextTurn(self):
-        self.turn_number = self.turn_number - 1
+        self.number_turns_left = self.number_turns_left - 1
+        self.save()
 
-    def turnsLeft(self):
-        if self.turn_number > 0:
-            return True
-        return False
+    def turnsRemaining(self):
+        return self.number_turns_left
+
+    def turnsTaken(self):
+        return self.MAX_NUMBER_OF_TURNS - self.number_turns_left
 
     def getPlayerTurn(self):
         if self.User1_profile.current_turn is True:
@@ -165,9 +168,11 @@ class GameSession(models.Model):
 
     def updatePlayerScore(self, points):
         player_to_update = self.getPlayerTurn()
+        self.nextTurn()
 
         player_to_update.updateRoundScore(self.current_round, points)
         player_to_update.save()
+        self.save()
 
     def getPlayerScoreData(self):
         return [self.User1_profile.getPlayerScoreRow(), self.User2_profile.getPlayerScoreRow()]
