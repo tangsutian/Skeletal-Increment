@@ -114,10 +114,8 @@ def questionManager(request):
 
 @require_http_methods(["POST"])
 def uploadCSV(request):
+    handleQuestionCSV(request.FILES['csv_file'])
     response = redirect('home')
-    context = {
-        'button_text': 'Go Back',
-    }
     return response
 
 
@@ -162,3 +160,11 @@ def start_game_session(request):
     request.session['gameWheel'] = game_wheel.id
     response = redirect('wheel')
     return response
+
+
+def handleQuestionCSV(file):
+    lines = file.read().decode('UTF-8').split('\n')
+    for l in lines:
+        s = l.split('`')
+        for t in s:
+            print(t)
