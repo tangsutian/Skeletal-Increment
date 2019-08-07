@@ -70,6 +70,8 @@ def spin(request, sector_id):
     else:     #Logic for routing cases for bankrupt, double points, player's choice, opponent's choice, free turn, lose turn should go here
         if sector_obj == "bankrupt":
             return bankrupt(request)
+        elif sector_obj == "double_score":
+            return double_score(request)
         else:
             context = {
                 'sector_color': '#bab',
@@ -84,7 +86,6 @@ def spin(request, sector_id):
 def bankrupt(request):
     template = loader.get_template("bankrupt.html")
     gss = GameSession.objects.all()
-    print(gss)
     gs = gss[0]
     gs.clearPlayerRoundScore()
     gs.updatePlayersTurn()
@@ -92,6 +93,23 @@ def bankrupt(request):
         'sector_color': '#bab',
         'button_text': 'Next Turn',
         'button_link': 'wheel',
+    }
+    return HttpResponse(template.render(context, request))
+
+def double_score(request):
+    template = loader.get_template("double_score.html")
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.doublePlayerRoundScore()
+    player = gs.getPlayerTurn()
+    score = gs.getCurrentPlayerScore()
+    #gs.updatePlayersTurn()
+    context = {
+        'sector_color': '#bab',
+        'button_text': 'Next Turn',
+        'button_link': 'wheel',
+        'player': player.username,
+        'new_score': score,
     }
     return HttpResponse(template.render(context, request))
 

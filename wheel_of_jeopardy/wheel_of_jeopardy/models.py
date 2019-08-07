@@ -251,6 +251,16 @@ class GameSession(models.Model):
         self.nextTurn()
         player_to_update.resetRoundScore(self.current_round)
 
+    def doublePlayerRoundScore(self):
+        player = self.getPlayerTurn()
+        self.nextTurn()
+        player.updateRoundScore(self.current_round, player.getRoundScore(self.current_round))
+        player.save()
+        self.save()
+
+    def getCurrentPlayerScore(self):
+        player = self.getPlayerTurn()
+        return player.getRoundScore(self.current_round)
 
     def updatePlayerScore(self, points):
         player_to_update = self.getPlayerTurn()
