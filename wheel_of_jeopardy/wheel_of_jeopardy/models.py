@@ -14,13 +14,17 @@ class Category(models.Model):
 
     @classmethod
     def create(cls, category):
-        category = cls(category_title=category)
-        return category
+        for cat in Category.objects.all():
+            if cat.category_title == category:
+                return cat
+        return cls(category_title=category)
 
     @classmethod
     def deleteAll(cls):
         Category.objects.all().delete()
 
+    def __str__(self):
+        return '%s' % (self.category_title)
 
 class Question(models.Model):
     '''
@@ -33,18 +37,22 @@ class Question(models.Model):
     answer_text = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
+    points = models.IntegerField()
 
     def __str__(self):
         return self.question_text
 
     @classmethod
-    def create(cls, q_text, a_text, category, session):
-        question = cls(question_text=q_text, answer_text=a_text, category=category, game_session=session)
+    def create(cls, q_text, a_text, category, point, session):
+        question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session)
         return question
 
     @classmethod
     def deleteAll(cls):
         Question.objects.all().delete()
+
+    def __str__(self):
+        return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.game_session)
 
 
 class User(models.Model):
@@ -101,7 +109,7 @@ class User(models.Model):
     def getPlayerScoreRow(self):
         return [self.username, self.r1_points, self.r2_points, self.getTotalScore()]
 
-    def toString(self):
+    def __str__(self):
         return 'User-\n\tname: %s\n\tround 1 score: %d\n\tround 2 score: %d\n\tNum Free Tokens: %d\n\tCurrent Turn: %s' % (self.username, self.r1_points, self.r2_points, self.free_tokens, self.current_turn)
 
 
