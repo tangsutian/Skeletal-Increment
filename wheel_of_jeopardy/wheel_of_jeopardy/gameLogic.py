@@ -4,6 +4,7 @@ from django.shortcuts import render, render_to_response, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.template import loader
+from random import sample
 from .forms import startGameForm
 from .models import GameSession, User, GameWheel, Category, Question
 
@@ -150,6 +151,7 @@ def start_game_session(request):
     user1.save()
     user2 = User.create(request.POST.get('user_2'), False)
     user2.save()
+
     categories = [Category.objects.get(pk=request.POST.get('category_1')).category_title,
                     Category.objects.get(pk=request.POST.get('category_2')).category_title,
                     Category.objects.get(pk=request.POST.get('category_3')).category_title,

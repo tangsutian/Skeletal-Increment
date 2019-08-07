@@ -9,6 +9,9 @@ class Category(models.Model):
     '''
     category_title = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.category_title
+
     @classmethod
     def create(cls, category):
         for cat in Category.objects.all():
@@ -36,6 +39,9 @@ class Question(models.Model):
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
     points = models.IntegerField()
 
+    def __str__(self):
+        return self.question_text
+
     @classmethod
     def create(cls, q_text, a_text, category, point, session):
         question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session)
@@ -58,6 +64,9 @@ class User(models.Model):
     r2_points = models.IntegerField()
     free_tokens = models.IntegerField()
     current_turn = models.BooleanField()
+
+    def __str__(self):
+        return self.username
 
     @classmethod
     def create(cls, username, turn):
