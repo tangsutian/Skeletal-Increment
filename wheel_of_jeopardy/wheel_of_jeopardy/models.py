@@ -9,6 +9,9 @@ class Category(models.Model):
     '''
     category_title = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.category_title
+
     @classmethod
     def create(cls, category):
         category = cls(category_title=category)
@@ -31,6 +34,9 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return self.question_text
+
     @classmethod
     def create(cls, q_text, a_text, category, session):
         question = cls(question_text=q_text, answer_text=a_text, category=category, game_session=session)
@@ -50,6 +56,9 @@ class User(models.Model):
     r2_points = models.IntegerField()
     free_tokens = models.IntegerField()
     current_turn = models.BooleanField()
+
+    def __str__(self):
+        return self.username
 
     @classmethod
     def create(cls, username, turn):
@@ -165,8 +174,6 @@ class GameSession(models.Model):
     @classmethod
     def delete(cls):
         GameSession.objects.all().delete()
-        Question.deleteAll()
-        Category.deleteAll()
 
     def nextTurn(self):
         self.number_turns_left = self.number_turns_left - 1
