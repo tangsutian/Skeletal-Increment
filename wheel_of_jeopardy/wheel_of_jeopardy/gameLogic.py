@@ -32,22 +32,50 @@ def home(request):
 
 @require_http_methods(["GET"])
 def wheel(request):
-    template = loader.get_template('wheel.html')
     gs = GameSession.objects.all()[0]
     user_1 = gs.User1_profile
     user_2 = gs.User2_profile
+    gs.updateCurrentRound()
 
-    context = {
-        'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
-        'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
-        'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
-        'sector_color': '#baa',
-        'button_text': 'Spin Wheel',
-        'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
-        'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score', 'Number of Free Turn Tokens'],
-        'data': gs.getPlayerScoreData(),
+    if gs.current_round == GameSession.GAME_OVER:
+        winner_text = 'Player %s is the winner! Good Job!'
+        tie_text = 'Player %s and Player %s tie!'
+        game_over_text = 'GAME OVER!'
 
-    }
+        template = loader.get_template('game_over.html')
+        winner = gs.getWinner()
+        text = ''
+        if winner == None:
+            text = tie_text % (gs.User1_profile.username, gs.User2_profile.username)
+        else:
+            text = winner_text % (winner.username)
+
+        d = []
+        for e in gs.getPlayerScoreData():
+            d.append(e[0:-1])
+
+        context = {
+            'game_over_text': game_over_text,
+            'winner_text': text,
+            'classes': User.getPlayerTableHeaders()[0:-1],
+            'data': d,
+            'button_link': 'home',
+            'button_text': 'Go Home',
+        }
+
+    else:
+        template = loader.get_template('wheel.html')
+        context = {
+            'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
+            'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
+            'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
+            'sector_color': '#baa',
+            'button_text': 'Spin Wheel',
+            'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
+            'classes': User.getPlayerTableHeaders(),
+            'data': gs.getPlayerScoreData(),
+
+        }
     return HttpResponse(template.render(context, request))
 
 
@@ -263,3 +291,7 @@ def token2(request):
     gs.updatePlayersTurn()
     gs.decrementPlayerTokenNumber()
     return redirect('wheel')
+
+@require_http_methods(["GET"])
+def gameOver(request):
+    return redirect('home')

@@ -118,6 +118,10 @@ class User(models.Model):
             return True
         return False
 
+    @classmethod
+    def getPlayerTableHeaders(cls):
+        return ['Round 1 Score', 'Round 2 Score', 'Total Score', 'Number of Free Turn Tokens']
+
     def getPlayerScoreRow(self):
         return [self.username, self.r1_points, self.r2_points, self.getTotalScore(), self.free_tokens]
 
@@ -184,6 +188,9 @@ class GameSession(models.Model):
     #TODO: discuss desire on delete behavior and proper form of related_names
     #current_user = models.CharField(max_length=30) Should this be handles in the db?
     MAX_NUMBER_OF_TURNS = 50
+    ROUND_1_VALUE = 1
+    ROUND_2_VALUE = 2
+    GAME_OVER = 3
     number_turns_left = models.IntegerField()
     current_round = models.IntegerField()
     User1_profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name="one")
@@ -191,7 +198,7 @@ class GameSession(models.Model):
 
     @classmethod
     def create(cls, user1, user2):
-        session = cls(User1_profile=user1, User2_profile=user2, current_round=1, number_turns_left=cls.MAX_NUMBER_OF_TURNS)
+        session = cls(User1_profile=user1, User2_profile=user2, current_round=cls.ROUND_1_VALUE, number_turns_left=cls.MAX_NUMBER_OF_TURNS)
         return session
 
     @classmethod
@@ -271,6 +278,27 @@ class GameSession(models.Model):
 
     def getPlayerScoreData(self):
         return [self.User1_profile.getPlayerScoreRow(), self.User2_profile.getPlayerScoreRow()]
+
+    def areQuestionsRemaining(self):
+        return True
+
+    def updateCurrentRound(self):
+        if self.turnsRemaining() <= 0 or not self.areQuestionsRemaining():
+            if self.current_round == self.ROUND_1_VALUE:
+                self.current_round = self.ROUND_2_VALUE
+                self.number_turns_left = self.MAX_NUMBER_OF_TURNS
+                #update current question set
+            elif self.current_round == self.ROUND_2_VALUE:
+                self.current_round = self.GAME_OVER
+            self.save()
+
+    def getWinner(self):
+        if self.User1_profile.getTotalScore() > self.User2_profile.getTotalScore():
+            return self.User1_profile
+        elif self.User1_profile.getTotalScore() < self.User2_profile.getTotalScore():
+            return self.User2_profile
+        else:
+            return None
 
 
     # def __init__(self, user1, user2):
