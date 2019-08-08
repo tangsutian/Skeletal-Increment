@@ -40,4 +40,6 @@ urlpatterns = [
     path('token/', gameLogic.token1, name='token'),
     path('decrementToken/', gameLogic.token2, name='dectoken'),
     path('gameOver/', gameLogic.gameOver, name='gameover'),
+    path('use_token/', gameLogic.use_token, name='usetoken'),
+    path('save_token/', gameLogic.save_token, name='savetoken'),
 ]
