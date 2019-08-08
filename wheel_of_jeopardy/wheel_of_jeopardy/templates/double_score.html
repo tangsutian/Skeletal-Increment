@@ -1,22 +1,13 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Double Score</title>
-<style>
-.dot {
-	height: 25px;
-	width: 25px;
-	background: {{ 'sector_color' }};
-	display: inline-block;
-}
-</style>
-</head>
-<body>
+	{% include 'head.html' %}
+	<body>
 
-<span class="dot"></span>
-<h1>Woohoo! You rolled the double score sector. Setting {{player}}'s round score to {{new_score}}!</h1>
+		<span class="dot"></span>
+		<h1>Woohoo! You rolled the double score sector. Setting {{player}}'s round score to {{new_score}}!</h1>
 
-<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
-</body>
+		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
+
+		{% include 'footer.html' %}
+	</body>
 </html>

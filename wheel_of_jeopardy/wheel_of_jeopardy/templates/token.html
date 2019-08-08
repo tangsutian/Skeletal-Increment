@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Free Token Page</title>
-</head>
-<body>
-<h1>{{ question_text }}</h1>
-<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link_1 }}/';">{{ button_1_text }}</button>
-<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link_2 }}/';">{{ button_2_text }}</button>
-</body>
+	{% include 'head.html' %}
+
+	<body>
+		<h1>{{ question_text }}</h1>
+		<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link_1 }}/';">{{ button_1_text }}</button>
+		<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link_2 }}/';">{{ button_2_text }}</button>
+		{% include 'footer.html' %}
+	</body>
 </html>

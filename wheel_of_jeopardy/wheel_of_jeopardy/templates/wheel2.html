@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Wheel Page</title>
-<style>
-.dot {
-	height: 25px;
-	width: 25px;
-	background: {{ 'sector_color' }};
-	display: inline-block;
-}
-</style>
-</head>
-<body>
 
-<span class="dot"></span>
-<h1>Sector Spun: {{ sector_spun }}</h1>
-<h1>Category: {{ category }}</h1>
+	{% include 'head.html' %}
 
-<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'board' %}';">{{ button_text }}</button>
-</body>
+	<body>
+
+		<h1>Sector Spun: {{ sector_spun }}</h1>
+		<h1>Category: {{ category }}</h1>
+
+		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'board' %}';">{{ button_text }}</button>
+
+		{% include 'footer.html' %}
+	</body>
 </html>

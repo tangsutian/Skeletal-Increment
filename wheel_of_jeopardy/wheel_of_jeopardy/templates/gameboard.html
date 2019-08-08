@@ -1,0 +1,17 @@
+<div>
+  <table style="width:100%">
+    <tr>
+      {% for cat in categories %}
+    	<th>{{ cat }}</th>
+      {% endfor %}
+    </tr>
+
+    {% for r in point_totals %}
+      {% for p in r %}
+        {% cycle '<tr>' '' '' '' ''  ''%}
+          <td>{{ p }}</td>
+        {% cycle '' '' '' '' '' '</tr>'%}
+      {% endfor %}
+    {% endfor %}
+  </table>
+</div>

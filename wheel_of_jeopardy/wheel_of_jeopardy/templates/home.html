@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Home Page</title>
-</head>
-<body>
-<h1>Wheel of Jeopardy!</h1>
 
-{% block startForm %}
-    {% include "startGame.html" %}
-{% endblock %}
+	{% include 'head.html' %}
+	
+	<body>
+		<h1>Wheel of Jeopardy!</h1>
 
-<button onclick="window.location.href ='http://127.0.0.1:8000{% url 'questionManager' %}';">{{ button_1_text }}</button>
-</body>
+		{% block startForm %}
+		    {% include "startGame.html" %}
+		{% endblock %}
+
+		<button onclick="window.location.href ='http://127.0.0.1:8000{% url 'questionManager' %}';">{{ button_1_text }}</button>
+
+
+		{% include 'footer.html' %}
+	</body>
 </html>

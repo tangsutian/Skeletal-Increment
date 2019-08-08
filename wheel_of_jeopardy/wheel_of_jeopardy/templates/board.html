@@ -1,30 +1,13 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Board Page</title>
-</head>
-<body>
-<table style="width:100%">
-  <tr>
-  	<th>{{ category_1 }}</th>
-  	<th>{{ category_2 }}</th>
-  	<th>{{ category_3 }}</th>
-  	<th>{{ category_4 }}</th>
-  	<th>{{ category_5 }}</th>
-  	<th>{{ category_6 }}</th>
-  </tr>
+  
+  {% include 'head.html' %}
+  <body>
+    {% include "gameboard.html" %}
 
-  {% for points in point_totals %}
-  	<tr>
-  		{% for val in num_columns %}
-  			<th>{{ points }}</th>
-  		{% endfor %}
-  	</tr>
-  {% endfor %}
-</table>
+    <button onclick="window.location.href ='http://127.0.0.1:8000{% url 'question' %}';">{{ button_text }}</button>
+    
+    {% include 'footer.html' %}
 
-<button onclick="window.location.href ='http://127.0.0.1:8000{% url 'question' %}';">{{ button_text }}</button>
-
-</body>
+  </body>
 </html>

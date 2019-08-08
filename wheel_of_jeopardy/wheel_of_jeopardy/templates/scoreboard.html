@@ -1,0 +1,23 @@
+<div>
+	<table>
+		<thead>
+			<tr>
+				<th colspan="3"></th>
+				{% for class in classes %}
+					<th colspan="3">{{ class }}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in data %}
+				<tr>
+					{% for item in row %}
+						{% cycle '<th colspan="3">' '<td colspan="3">' '<td colspan="3">' '<td colspan="3">' '<td colspan="3">' %}
+							{{ item }}
+						{% cycle '</th>' '</td>' '</td>' '</td>' '</td>' %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>

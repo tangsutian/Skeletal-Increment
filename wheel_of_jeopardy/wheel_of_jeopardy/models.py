@@ -53,8 +53,8 @@ class Question(models.Model):
     def deleteAll(cls):
         Question.objects.all().delete()
 
-    def setAsked(self):
-        self.asked = True
+    def setAsked(self, bool):
+        self.asked = bool
         self.save()
 
     @classmethod
@@ -70,12 +70,30 @@ class Question(models.Model):
         return e[0]
 
     @classmethod
-    def getDisplayQuestionsForCategory(cls, cat, round_num):
-        a = Questions.objects.filter(category__category_title__exact=cat)
-        b = a.filter(round_num=round_num)
-        c = b.exclude(game_session__isnull=True)
-        d = c.order_by('points')
-        print(d)
+    def getQuestionsInCategory(cls, cat):
+        a = Question.objects.filter(category__category_title__exact=cat)
+        return a
+
+    @classmethod
+    def getQuestionPointsLeftInCategory(cls, categories, round):
+        gspk = GameSession.objects.all()[0].pk
+        values = []
+        for cat in categories:
+            a = Question.objects.filter(category__category_title__exact=cat)
+            b = a.filter(round_num=round)
+            c = b.filter(game_session__pk__exact=gspk)
+            d = c.exclude(asked=True)
+            e = d.order_by('points')
+
+            pts = []
+            for val in range(0,5-len(e),1):
+                pts.append('')
+            for pt in e:
+                pts.append(pt.points)
+            values.append(pts)
+        
+        return zip(*values)
+
 
     def __str__(self):
         return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tAsked: %s\n\tRound Number: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.asked, self.round_num, self.game_session)
@@ -314,7 +332,10 @@ class GameSession(models.Model):
         return [self.User1_profile.getPlayerScoreRow(), self.User2_profile.getPlayerScoreRow()]
 
     def areQuestionsRemaining(self):
-        return True
+        for ca in GameWheel.objects.all()[0].categories:
+            if Question.getNextQuestionForCategory(ca, self.current_round) is not None:
+                return True
+        return False
 
     def updateCurrentRound(self):
         if self.turnsRemaining() <= 0 or not self.areQuestionsRemaining():
