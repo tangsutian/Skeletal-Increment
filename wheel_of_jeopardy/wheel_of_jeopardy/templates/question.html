@@ -4,9 +4,24 @@
 <meta charset="UTF-8">
 <title>Home Page</title>
 </head>
-<body>
+
+<b id="timeRemaining"></b>
 <h1>{{ question_text }}</h1>
 <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_1 }}/{{ point_total }}/';">{{ button_1_text }}</button>
 <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_2 }}/{{ point_total }}/';">{{ button_2_text }}</button>
+<body>
+<script>
+    var timeout = 30;
+    var tics = 0;
+    var x = setInterval(function () {
+        tics+=1;
+        document.getElementById("timeRemaining").innerHTML = 'Time Remaining: '.concat(timeout-tics).toString();
+        if(timeout-tics <= 0){
+        document.getElementById("timeRemaining").innerHTML = "TIME UP";
+        clearInterval(x);
+        tics = 0;
+        }
+    }, 1000);
+</script>
 </body>
 </html>
