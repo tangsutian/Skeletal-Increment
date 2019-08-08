@@ -60,7 +60,6 @@ class Question(models.Model):
     @classmethod
     def getNextQuestionForCategory(cls, cat, round_num):
         a = Question.objects.filter(category__category_title__exact=cat)
-        print(a)
         b = a.filter(round_num=round_num)
         c = b.exclude(game_session__isnull=True)
         d = c.exclude(asked=True)
