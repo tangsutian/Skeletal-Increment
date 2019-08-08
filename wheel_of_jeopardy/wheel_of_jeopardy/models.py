@@ -127,6 +127,7 @@ class User(models.Model):
 
 class GameWheel(models.Model):
     event_list = ['lose_turn', 'free_turn', 'bankrupt', 'player_choice', 'opponent_choice', 'double_score']
+    categories = []
     wheel_sectors = models.TextField(null=True);
 
     @classmethod
@@ -149,6 +150,7 @@ class GameWheel(models.Model):
         '''
         if not isinstance(categories, list):
             return -1
+        cls.categories = categories
         wheel = cls(wheel_sectors=json.dumps(cls.event_list+categories))
         return wheel
 
@@ -163,6 +165,14 @@ class GameWheel(models.Model):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
         return sector_list[x]
+
+
+    def get_sector_num(self, category):
+        jsonDec = json.decoder.JSONDecoder()
+        sector_list = jsonDec.decode(self.wheel_sectors)
+        return sector_list.index(category)
+
+
 
 
 
