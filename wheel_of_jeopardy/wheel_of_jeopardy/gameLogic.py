@@ -249,6 +249,7 @@ def question(request):
         'button_link_1': 'right',
         'button_link_2': 'wrong',
         'point_total': question.points,
+        'answer_text': question.answer_text,
     }
     return HttpResponse(template.render(context, request))
 
