@@ -205,6 +205,12 @@ def double_score(request):
 def board(request):
     template = loader.get_template('board.html')
     categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
+    question = Question.getNextQuestionsForCategory(categories[0], 1)
+    print(question)
+    question.setAsked()
+    question = Question.getNextQuestionsForCategory(categories[0], 1)
+    print(question)
+
     values = []
     for i in range(0, 5):
         values.append(str(i * 200 + 200))
@@ -329,7 +335,7 @@ def handleQuestionCSV(file, gs):
             continue
         cat = Category.create(s[2])
         cat.save()
-        question = Question.create(s[3],s[4],cat,int(s[1]),gs)
+        question = Question.create(s[3],s[4],cat,int(s[1]),gs,int(s[0]))
         question.save()
 
 

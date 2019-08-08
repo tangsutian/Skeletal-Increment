@@ -38,22 +38,38 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     game_session = models.ForeignKey('GameSession', null=True, blank=True, on_delete=models.SET_NULL)
     points = models.IntegerField()
+    asked = models.BooleanField()
+    round_num = models.IntegerField()
 
     def __str__(self):
         return self.question_text
 
     @classmethod
-    def create(cls, q_text, a_text, category, point, session):
-        question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session)
+    def create(cls, q_text, a_text, category, point, session, round_n):
+        question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session, asked=False, round_num=round_n)
         return question
 
     @classmethod
     def deleteAll(cls):
         Question.objects.all().delete()
 
-    def __str__(self):
-        return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.game_session)
+    def setAsked(self):
+        self.asked = True
+        self.save()
 
+    @classmethod
+    def getNextQuestionsForCategory(cls, cat, round_num):
+        a = Question.objects.filter(category__category_title__exact=cat)
+        b = a.filter(round_num=round_num)
+        c = b.exclude(game_session__isnull=True)
+        d = c.exclude(asked=True)
+        e = d.order_by('points')
+        if len(e) == 0:
+            return None
+        return e[0]
+
+    def __str__(self):
+        return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tAsked: %s\n\tRound Number: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.asked, self.round_num, self.game_session)
 
 class User(models.Model):
     '''
