@@ -5,6 +5,7 @@
 <title>Home Page</title>
 </head>
 <body>
+<h1>Category: {{ category }}</h1>
 <h1>{{ question_text }}</h1>
 <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_1 }}/{{ point_total }}/';">{{ button_1_text }}</button>
 <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_2 }}/{{ point_total }}/';">{{ button_2_text }}</button>

@@ -87,34 +87,27 @@ def spin(request, sector_id):
 
     print("wheel.get_categories(): " + str(wheel.get_categories()))
     sector_obj = wheel.get_sector(sector_id)
-    print("GET spin() called with sector_id: " + str(sector_id))
+    print("GET spin() called with sector_id: " + str(sector_id) + " and sector_obj: " + sector_obj)
 
-    print(isinstance(sector_obj, dict))
-    if isinstance(sector_obj, dict): # If the wheel spin was a category, forward right to the question page
-        category = sector_obj["category_title"]
+    if sector_obj == "bankrupt":
+        return bankrupt(request)
+    elif sector_obj == "double_score":
+        return double_score(request)
+    elif sector_obj == "free_turn":
+        return free_turn(request)
+    elif sector_obj == "lose_turn":
+        return lose_turn(request)
+    elif sector_obj == "opponents_choice":
+        return HttpResponse(template.render(context, request)) # TODO Implement
+    elif sector_obj == "players_choice":
+        return HttpResponse(template.render(context, request)) # TODO Implement
+    else: # If the wheel spin was a category, forward right to the question page
         get_info = request.GET.copy()
-        get_info["category"] = category
+        get_info["category"] = sector_obj
         request.GET = get_info
         return question(request)
-    else:     #Logic for routing cases for bankrupt, double points, player's choice, opponent's choice, free turn, lose turn should go here
-        if sector_obj == "bankrupt":
-            return bankrupt(request)
-        elif sector_obj == "double_score":
-            return double_score(request)
-        elif sector_obj == "free_turn":
-            return free_turn(request)
-        elif sector_obj == "lose_turn":
-            return lose_turn(request)
-        else:
-            context = {
-                'sector_color': '#bab',
-                'sector_spun': sector_id,
-                'category': sector_obj,
-                'button_text': 'Go to Game Board',
-                'button_link': 'board',
-            }
 
-    return HttpResponse(template.render(context, request))
+
 
 def use_token(request):
     gss = GameSession.objects.all()
@@ -227,6 +220,7 @@ def board(request):
 
 @require_http_methods(["GET"])
 def question(request):
+    print("GET QUESTION")
     category = request.GET.get('category', '')
     print(request)
     print(category)
@@ -247,7 +241,7 @@ def question(request):
 
     template = loader.get_template('question.html')
     context = {
-        'category': question.category_title,
+        'category': question.category,
         'question_text': question.question_text,
         'button_1_text': 'Right',
         'button_1_color': 'green',
@@ -257,6 +251,8 @@ def question(request):
         'button_link_2': 'wrong',
         'point_total': '100',
     }
+    print("GET QUESTION END")
+
     return HttpResponse(template.render(context, request))
 
 @require_http_methods(["GET"])
