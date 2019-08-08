@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Free Turn Token</title>
+<style>
+.dot {
+	height: 25px;
+	width: 25px;
+	background: {{ 'sector_color' }};
+	display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<span class="dot"></span>
+<h1>Unfortunately {{player}} has spun the "lose turn" sector. On the bright side, you have {{numTokens}} free turn tokens left. Would you like to use a token now?</h1>
+
+<button onclick="window.location.href = 'http://127.0.0.1:8000/use_token';">{{ use_token_button_text }}</button>
+<button onclick="window.location.href = 'http://127.0.0.1:8000/save_token';">{{ save_token_button_text }}</button>
+</body>
+</html>

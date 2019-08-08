@@ -32,22 +32,50 @@ def home(request):
 
 @require_http_methods(["GET"])
 def wheel(request):
-    template = loader.get_template('wheel.html')
     gs = GameSession.objects.all()[0]
     user_1 = gs.User1_profile
     user_2 = gs.User2_profile
+    gs.updateCurrentRound()
 
-    context = {
-        'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
-        'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
-        'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
-        'sector_color': '#baa',
-        'button_text': 'Spin Wheel',
-        'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
-        'classes': ['Round 1 Score', 'Round 2 Score', 'Total Score', 'Number of Free Turn Tokens'],
-        'data': gs.getPlayerScoreData(),
+    if gs.current_round == GameSession.GAME_OVER:
+        winner_text = 'Player %s is the winner! Good Job!'
+        tie_text = 'Player %s and Player %s tie!'
+        game_over_text = 'GAME OVER!'
 
-    }
+        template = loader.get_template('game_over.html')
+        winner = gs.getWinner()
+        text = ''
+        if winner == None:
+            text = tie_text % (gs.User1_profile.username, gs.User2_profile.username)
+        else:
+            text = winner_text % (winner.username)
+
+        d = []
+        for e in gs.getPlayerScoreData():
+            d.append(e[0:-1])
+
+        context = {
+            'game_over_text': game_over_text,
+            'winner_text': text,
+            'classes': User.getPlayerTableHeaders()[0:-1],
+            'data': d,
+            'button_link': 'home',
+            'button_text': 'Go Home',
+        }
+
+    else:
+        template = loader.get_template('wheel.html')
+        context = {
+            'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
+            'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
+            'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
+            'sector_color': '#baa',
+            'button_text': 'Spin Wheel',
+            'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
+            'classes': User.getPlayerTableHeaders(),
+            'data': gs.getPlayerScoreData(),
+
+        }
     return HttpResponse(template.render(context, request))
 
 
@@ -72,6 +100,10 @@ def spin(request, sector_id):
             return bankrupt(request)
         elif sector_obj == "double_score":
             return double_score(request)
+        elif sector_obj == "free_turn":
+            return free_turn(request)
+        elif sector_obj == "lose_turn":
+            return lose_turn(request)
         else:
             context = {
                 'sector_color': '#bab',
@@ -81,6 +113,62 @@ def spin(request, sector_id):
                 'button_link': 'board',
             }
 
+    return HttpResponse(template.render(context, request))
+
+def use_token(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.decrementPlayerTokenNumber()
+    return wheel(request)
+
+
+def save_token(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.updatePlayersTurn()
+    return wheel(request)
+
+def lose_turn(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    hasToken = gs.playerHasTokenLeft()
+    player = gs.getPlayerTurn()
+    gs.nextTurn()
+    if(hasToken):
+        template = loader.get_template("lose_turn_has_token.html")
+        numTokens = gs.getNumPlayerFreeTokens()
+        context = {
+            'sector_color': '#bab',
+            'use_token_button_text': 'Use Free Turn Token',
+            'save_token_button_text': 'Save Free Turn Token',
+            'player': player.username,
+            'free_tokens': numTokens,
+        }
+    else:
+        template = loader.get_template("lose_turn_no_token.html")
+        gs.updatePlayersTurn()
+        context = {
+            'sector_color': '#bab',
+            'player': player.username,
+            'button_text': 'Next Turn',
+            'button_link': 'wheel',
+        }
+    return HttpResponse(template.render(context, request))
+
+def free_turn(request):
+    template = loader.get_template("free_turn.html")
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.incrementPlayerTokenNumber()
+    player = gs.getPlayerTurn()
+    tokens = gs.getNumPlayerFreeTokens()
+    context = {
+        'sector_color': '#bab',
+        'button_text': 'Next Turn',
+        'button_link': 'wheel',
+        'player': player.username,
+        'free_tokens': tokens,
+    }
     return HttpResponse(template.render(context, request))
 
 def bankrupt(request):
@@ -190,7 +278,7 @@ def wrong(request, sector_id):
     gs = GameSession.objects.all()[0]
     gs.updatePlayerScore(sector_id * -1)
 
-    if gs.getPlayerTokensLeft():
+    if gs.playerHasTokenLeft():
         response = redirect('token')
     else:
         response = redirect('wheel')
@@ -265,3 +353,7 @@ def token2(request):
     gs.updatePlayersTurn()
     gs.decrementPlayerTokenNumber()
     return redirect('wheel')
+
+@require_http_methods(["GET"])
+def gameOver(request):
+    return redirect('home')
