@@ -247,6 +247,9 @@ def question(request):
 
     template = loader.get_template('question.html')
     context = {
+
+        #'sector_id': GameWheel.objects.get(pk=request.session['gameWheel']).get_sector_num(category),
+        'sector_id': 11,
         'category': question.category_title,
         'question_text': question.question_text,
         'button_1_text': 'Right',
