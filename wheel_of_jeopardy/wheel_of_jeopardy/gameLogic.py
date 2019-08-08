@@ -100,6 +100,10 @@ def spin(request, sector_id):
             return bankrupt(request)
         elif sector_obj == "double_score":
             return double_score(request)
+        elif sector_obj == "free_turn":
+            return free_turn(request)
+        elif sector_obj == "lose_turn":
+            return lose_turn(request)
         else:
             context = {
                 'sector_color': '#bab',
@@ -109,6 +113,62 @@ def spin(request, sector_id):
                 'button_link': 'board',
             }
 
+    return HttpResponse(template.render(context, request))
+
+def use_token(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.decrementPlayerTokenNumber()
+    return wheel(request)
+
+
+def save_token(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.updatePlayersTurn()
+    return wheel(request)
+
+def lose_turn(request):
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    hasToken = gs.playerHasTokenLeft()
+    player = gs.getPlayerTurn()
+    gs.nextTurn()
+    if(hasToken):
+        template = loader.get_template("lose_turn_has_token.html")
+        numTokens = gs.getNumPlayerFreeTokens()
+        context = {
+            'sector_color': '#bab',
+            'use_token_button_text': 'Use Free Turn Token',
+            'save_token_button_text': 'Save Free Turn Token',
+            'player': player.username,
+            'free_tokens': numTokens,
+        }
+    else:
+        template = loader.get_template("lose_turn_no_token.html")
+        gs.updatePlayersTurn()
+        context = {
+            'sector_color': '#bab',
+            'player': player.username,
+            'button_text': 'Next Turn',
+            'button_link': 'wheel',
+        }
+    return HttpResponse(template.render(context, request))
+
+def free_turn(request):
+    template = loader.get_template("free_turn.html")
+    gss = GameSession.objects.all()
+    gs = gss[0]
+    gs.incrementPlayerTokenNumber()
+    player = gs.getPlayerTurn()
+    tokens = gs.getNumPlayerFreeTokens()
+    context = {
+        'sector_color': '#bab',
+        'button_text': 'Next Turn',
+        'button_link': 'wheel',
+        'player': player.username,
+        'free_tokens': tokens,
+    }
     return HttpResponse(template.render(context, request))
 
 def bankrupt(request):
@@ -216,7 +276,7 @@ def wrong(request, sector_id):
     gs = GameSession.objects.all()[0]
     gs.updatePlayerScore(sector_id * -1)
 
-    if gs.getPlayerTokensLeft():
+    if gs.playerHasTokenLeft():
         response = redirect('token')
     else:
         response = redirect('wheel')

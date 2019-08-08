@@ -160,12 +160,14 @@ class GameWheel(models.Model):
     def get_spin_result(self):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
+        print(sector_list)
         x = randint(0,11)
         return {x, sector_list[randint(0, 11)]}
 
     def get_sector(self, x):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
+        print(sector_list)
         return sector_list[x]
 
 
@@ -225,10 +227,13 @@ class GameSession(models.Model):
             return self.User1_profile
         return self.User2_profile
 
-    def getPlayerTokensLeft(self):
+    def playerHasTokenLeft(self):
         if self.getPlayerTurn().getFreeTokenNumber() > 0:
             return True
         return False
+
+    def getNumPlayerFreeTokens(self):
+        return self.getPlayerTurn().getFreeTokenNumber()
 
     def decrementPlayerTokenNumber(self):
         player = self.getPlayerTurn()
@@ -236,6 +241,7 @@ class GameSession(models.Model):
         player.save()
 
     def incrementPlayerTokenNumber(self):
+        self.nextTurn()
         player = self.getPlayerTurn()
         player.incrementFreeTokenNumber()
         player.save()
