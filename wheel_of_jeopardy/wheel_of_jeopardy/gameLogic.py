@@ -233,6 +233,8 @@ def question(request):
     question = 'How much wood could a wood chuck chuck if a wood chuck could chuck wood?'
     template = loader.get_template('question.html')
     context = {
+        #'sector_id': GameWheel.objects.get(pk=request.session['gameWheel']).get_sector_num(category),
+        'sector_id': 11,
         'category': category,
         'question_text': question,
         'button_1_text': 'Right',
