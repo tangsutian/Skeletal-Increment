@@ -89,6 +89,12 @@ def spin(request, sector_id):
     sector_obj = wheel.get_sector(sector_id)
     print("GET spin() called with sector_id: " + str(sector_id) + " and sector_obj: " + sector_obj)
 
+    context = {
+        'sector_color': '#bab',
+        'sector_spun': sector_obj,
+        'categories': wheel.get_categories()
+    }
+
     if sector_obj == "bankrupt":
         return bankrupt(request)
     elif sector_obj == "double_score":
@@ -97,9 +103,9 @@ def spin(request, sector_id):
         return free_turn(request)
     elif sector_obj == "lose_turn":
         return lose_turn(request)
-    elif sector_obj == "opponents_choice":
+    elif sector_obj == "opponent_choice":
         return HttpResponse(template.render(context, request)) # TODO Implement
-    elif sector_obj == "players_choice":
+    elif sector_obj == "player_choice":
         return HttpResponse(template.render(context, request)) # TODO Implement
     else: # If the wheel spin was a category, forward right to the question page
         get_info = request.GET.copy()
@@ -217,13 +223,21 @@ def board(request):
     }
     return HttpResponse(template.render(context, request))
 
+def question(request, category):
+    get_info = request.GET.copy()
+    get_info["category"] = category
+    request.GET = get_info
+    return question(request)
+
 
 @require_http_methods(["GET"])
-def question(request):
+def question(request, **kwargs):
     print("GET QUESTION")
-    category = request.GET.get('category', '')
-    print(request)
-    print(category)
+    category = kwargs.get('category', None)
+    if not category:
+        category = request.GET.get('category', '')
+
+
     if(category):
         print("GET question() called with category: " + category)
     else:
@@ -231,6 +245,7 @@ def question(request):
         category = GameWheel.objects.all()[0].get_categories()[0]
 
     print(category)
+
     round = GameSession.objects.all()[0].current_round
     question = Question.getNextQuestionForCategory(category, round)
     print(question)

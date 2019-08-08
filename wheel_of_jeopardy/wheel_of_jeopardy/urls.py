@@ -24,6 +24,7 @@ extra_patterns = [
     path('spin/<int:sector_id>/', gameLogic.spin, name='spin'),
     path('right/<int:sector_id>/', gameLogic.right, name='right'),
     path('wrong/<int:sector_id>/', gameLogic.wrong, name='wrong'),
+
 ]
 
 
@@ -42,4 +43,5 @@ urlpatterns = [
     path('gameOver/', gameLogic.gameOver, name='gameover'),
     path('use_token/', gameLogic.use_token, name='usetoken'),
     path('save_token/', gameLogic.save_token, name='savetoken'),
+
 ]

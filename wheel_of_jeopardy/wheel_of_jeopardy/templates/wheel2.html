@@ -16,8 +16,11 @@
 
 <span class="dot"></span>
 <h1>Sector Spun: {{ sector_spun }}</h1>
-<h1>Category: {{ category }}</h1>
 
-<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'board' %}';">{{ button_text }}</button>
+{% for category in categories %}
+    <button onclick="window.location.href = 'http://127.0.0.1:8000/question/?category={{category}}';">{{ category }}</button>
+{% endfor %}
+
+
 </body>
 </html>
