@@ -58,15 +58,25 @@ class Question(models.Model):
         self.save()
 
     @classmethod
-    def getNextQuestionsForCategory(cls, cat, round_num):
+    def getNextQuestionForCategory(cls, cat, round_num):
         a = Question.objects.filter(category__category_title__exact=cat)
+        print(a)
         b = a.filter(round_num=round_num)
         c = b.exclude(game_session__isnull=True)
         d = c.exclude(asked=True)
         e = d.order_by('points')
+        print(e)
         if len(e) == 0:
             return None
         return e[0]
+
+    @classmethod
+    def getDisplayQuestionsForCategory(cls, cat, round_num):
+        a = Questions.objects.filter(category__category_title__exact=cat)
+        b = a.filter(round_num=round_num)
+        c = b.exclude(game_session__isnull=True)
+        d = c.order_by('points')
+        print(d)
 
     def __str__(self):
         return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tAsked: %s\n\tRound Number: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.asked, self.round_num, self.game_session)
@@ -176,17 +186,13 @@ class GameWheel(models.Model):
     def get_spin_result(self):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
-        print(sector_list)
         x = randint(0,11)
         return {x, sector_list[randint(0, 11)]}
 
     def get_sector(self, x):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
-        print(sector_list)
         return sector_list[x]
-
-
 
     def get_categories(self):
         '''

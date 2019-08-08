@@ -89,6 +89,7 @@ def spin(request, sector_id):
     sector_obj = wheel.get_sector(sector_id)
     print("GET spin() called with sector_id: " + str(sector_id))
 
+    print(isinstance(sector_obj, dict))
     if isinstance(sector_obj, dict): # If the wheel spin was a category, forward right to the question page
         category = sector_obj["category_title"]
         get_info = request.GET.copy()
@@ -205,11 +206,7 @@ def double_score(request):
 def board(request):
     template = loader.get_template('board.html')
     categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
-    question = Question.getNextQuestionsForCategory(categories[0], 1)
-    print(question)
-    question.setAsked()
-    question = Question.getNextQuestionsForCategory(categories[0], 1)
-    print(question)
+    print(categories)
 
     values = []
     for i in range(0, 5):
@@ -231,16 +228,27 @@ def board(request):
 @require_http_methods(["GET"])
 def question(request):
     category = request.GET.get('category', '')
+    print(request)
+    print(category)
     if(category):
         print("GET question() called with category: " + category)
     else:
         print("ERROR! Question page called without a category")
+        category = GameWheel.objects.all()[0].get_categories()[0]
 
-    question = 'How much wood could a wood chuck chuck if a wood chuck could chuck wood?'
+    print(category)
+    round = GameSession.objects.all()[0].current_round
+    question = Question.getNextQuestionForCategory(category, round)
+    print(question)
+    if question == None:
+        return redirect('wheel')
+        
+    question.setAsked()
+
     template = loader.get_template('question.html')
     context = {
-        'category': category,
-        'question_text': question,
+        'category': question.category_title,
+        'question_text': question.question_text,
         'button_1_text': 'Right',
         'button_1_color': 'green',
         'button_2_text': 'Wrong',
