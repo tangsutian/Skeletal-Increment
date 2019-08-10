@@ -206,7 +206,7 @@ class GameWheel(models.Model):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
         x = randint(0,11)
-        return {x, sector_list[randint(0, 11)]}
+        return [x, sector_list[x]]
 
     def get_sector(self, x):
         jsonDec = json.decoder.JSONDecoder()
