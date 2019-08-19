@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 	{% include 'head.html' %}
+	
 	<body>
+		{% include 'header.html' %}
 
-		<span class="dot"></span>
-		<h1>Woohoo! You rolled the double score sector. Setting {{player}}'s round score to {{new_score}}!</h1>
+		<div class="container text-center">
+			<h1>Woohoo! You rolled the double score sector.<br>Setting {{player}}'s round score to {{new_score}}!</h1>
 
-		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
+			<button onclick="window.location.href = '{% url 'wheel' %}';">{{ button_text }}</button>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

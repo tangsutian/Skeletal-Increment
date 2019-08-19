@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
-
 	{% include 'head.html' %}
 
 	<body>
-		<h1>{{ title }}</h1>
-		<span class="dot"></span>
-		<li>{{ current_player }}</li>
-		<li>{{ number_turns }}</li>
-		<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link }}';">{{ button_text }}</button>
+		{% include 'header.html' %}
 
+		<div class="text-center">
+			<h1>{{ title }}</h1>
+			<h3>{{ current_player }}</h3>
+			
+			<button onclick="window.location.href = '{% url 'spin' sector_id=sector_val %}';">{{ button_text }}</button>
+		</div>
 
-		{% include "scoreboard.html" %}
-		{% include "gameboard.html" %}
+		<div class="row mt-3">
+			{% include "scoreboard.html" %}
+		</div>
+		<div class="row mt-3">
+			{% include "gameboard.html" %}
+		</div>
+
+		<div class="text-center mt-3">
+			<h3>{{ number_turns }}</h3>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

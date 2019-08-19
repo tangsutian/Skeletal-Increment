@@ -94,6 +94,10 @@ class Question(models.Model):
         
         return zip(*values)
 
+    @classmethod
+    def getQuestionWithPK(cls, key):
+        return Question.objects.get(pk=key)
+
 
     def __str__(self):
         return 'Question Object:\n\tQuestion: %s\n\tAnswer: %s\n\tCategory: %s\n\tPoint Total: %d\n\tAsked: %s\n\tRound Number: %d\n\tGame Session: %s' % (self.question_text, self.answer_text, self.category.category_title, self.points, self.asked, self.round_num, self.game_session)

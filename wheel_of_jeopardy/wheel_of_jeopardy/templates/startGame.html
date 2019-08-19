@@ -1,5 +1,6 @@
 <form action="/startGameSession/" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Start Game">
+    <input type="submit" value="Question Manager" name="_questionManager">
+    <input type="submit" value="Start Game" name="_startGame">
 </form>

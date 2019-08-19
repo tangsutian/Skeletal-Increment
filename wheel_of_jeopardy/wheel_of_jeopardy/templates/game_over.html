@@ -3,11 +3,17 @@
 	{% include 'head.html' %}
 
 	<body>
-		<h1>{{ game_over_text }}</h1>
-		<h2>{{ winner_text }}</h2>
+		{% include 'header.html' %}
+		
+		<div class="container text-center">
+			<h1>{{ game_over_text }}</h1>
+			<h2>{{ winner_text }}</h2>
+		</div>
 
 		{% include "scoreboard.html" %}
-		<button onclick="window.location.href = 'http://127.0.0.1:8000/{{ button_link }}/';">{{ button_text }}</button>
+		<div class="container text-center mt-3">
+			<button onclick="window.location.href = '{% url 'home' %}';">{{ button_text }}</button>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

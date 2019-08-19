@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
-
 	{% include 'head.html' %}
 	
 	<body>
-		<h1>Wheel of Jeopardy!</h1>
+		{% include 'header.html' %}
 
-		{% block startForm %}
-		    {% include "startGame.html" %}
-		{% endblock %}
+		<h1 class="text-center">Wheel of Jeopardy!</h1>
 
-		<button onclick="window.location.href ='http://127.0.0.1:8000{% url 'questionManager' %}';">{{ button_1_text }}</button>
+		<div class="container text-center mt-4">
+			{% block startForm %}
+			    {% include "startGame.html" %}
+			{% endblock %}
+		</div>
 
+		<div class="container text-center mt-4">
+			<h1><font color="red">{{ error_text }}</font></h1>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

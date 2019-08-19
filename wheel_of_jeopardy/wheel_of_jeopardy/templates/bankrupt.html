@@ -2,11 +2,13 @@
 <html>
 	{% include 'head.html' %}
 	<body>
+		{% include 'header.html' %}
 
-		<span class="dot"></span>
-		<h1>You've rolled the bankrupt sector :(. Setting round your round points to 0.</h1>
+		<div class="container text-center">
+			<h1>You've rolled the bankrupt sector :(.<br>Setting round your round points to 0.</h1>
 
-		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
+			<button onclick="window.location.href = '{% url 'wheel' %}';">{{ button_text }}</button>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

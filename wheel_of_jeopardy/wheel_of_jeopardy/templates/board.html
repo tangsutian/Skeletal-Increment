@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
-  
-  {% include 'head.html' %}
-  <body>
-    {% include "gameboard.html" %}
+	{% include 'head.html' %}
 
-    <button onclick="window.location.href ='http://127.0.0.1:8000{% url 'question' %}';">{{ button_text }}</button>
-    
-    {% include 'footer.html' %}
+	<body>
+		{% include 'header.html' %}
+		{% include "gameboard.html" %}
 
-  </body>
+		<button onclick="window.location.href ='{% url 'question' %}';">{{ button_text }}</button>
+
+		{% include 'footer.html' %}
+	</body>
 </html>

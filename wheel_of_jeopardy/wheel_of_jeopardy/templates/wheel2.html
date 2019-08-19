@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
-
 	{% include 'head.html' %}
 
 	<body>
+		{% include 'header.html' %}
 
 		<h1>Sector Spun: {{ sector_spun }}</h1>
-		<h1>Category: {{ category }}</h1>
-
-		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'board' %}';">{{ button_text }}</button>
+		{% for category in categories %}
+			<button onclick="window.location.href = '{% url 'category' sector_id=category %}';">{{ category }}</button>
+		{% endfor %}
 
 		{% include 'footer.html' %}
 	</body>
