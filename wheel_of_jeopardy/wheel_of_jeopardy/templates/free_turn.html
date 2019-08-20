@@ -3,13 +3,15 @@
 	{% include 'head.html' %}
 	
 	<body>
+		{% include 'header.html' %}
 
-		<span class="dot"></span>
-		<h1>Congratulations!!!!! You rolled the free turn sector and have been granted a free turn token.
-		    These tokens can be used when you answer a question incorrectly or spin a "lose turn" sector.
-		    Setting {{player}}'s available free token count to {{free_tokens}}!</h1>
+		<div class="container text-center">
+			<h1>Congratulations!!!!!<br>You rolled the free turn sector and have been granted a free turn token.
+			    These tokens can be used when you answer a question incorrectly or spin a "lose turn" sector.<br>
+			    Setting {{player}}'s available free token count to {{free_tokens}}!</h1>
 
-		<button onclick="window.location.href = 'http://127.0.0.1:8000{% url 'wheel' %}';">{{ button_text }}</button>
+			<button class="btn btn-primary" onclick="window.location.href = '{% url 'wheel' %}';">{{ button_text }}</button>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>

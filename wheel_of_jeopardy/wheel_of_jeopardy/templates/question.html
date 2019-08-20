@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
-
     {% include 'head.html' %}
 
     <body>
+        {% include 'header.html' %}
+
         <input type="hidden" id="sector_id" name="sector_id">
-        <b id="timeRemaining"></b>
-        <h1>Category: {{ category }}</h1>
-        <h1>Points: {{ point_total }}</h1>
-        <h1>{{ question_text }}</h1>
-        <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_1 }}/{{ point_total }}/';">{{ button_1_text }}</button>
-        <button onclick="window.location.href = 'http://127.0.0.1:8000/wheel/{{ button_link_2 }}/{{ point_total }}/';">{{ button_2_text }}</button>
-        <h2>Answer: {{ answer_text }}</h2>
+
+        <div class="container text-center">
+            <h1>{{ question_text }}</h1>
+            <button id="button" class="btn btn-primary" onclick="window.location.href='{% url 'answer' pk=question_pk %}';">{{ button_text }}</button>
+            <h4 id="timeRemaining" class="mt-4">Time Remaining: {{ timeout_duration }}</h4>
+
+            <div class="container"
+                <h7>Category: {{ category }}</h7>
+            </div>
+            <div class="container">
+                <h7>Points: {{ point_total }}</h7>
+            </div>
+        </div>
 
         {% include 'timer.js' %}
         {% include 'footer.html' %}

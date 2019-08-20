@@ -4,12 +4,14 @@
 	{% include 'head.html' %}
 	
 	<body>
+		{% include 'header.html' %}
 
-		<span class="dot"></span>
-		<h1>Unfortunately {{player}} has spun the "lose turn" sector. On the bright side, you have {{numTokens}} free turn tokens left. Would you like to use a token now?</h1>
+		<div class="container text-center">
+			<h1>Unfortunately {{player}} has spun the "lose turn" sector.<br>On the bright side... you have {{numTokens}} free turn tokens left. Would you like to use a token now?</h1>
 
-		<button onclick="window.location.href = 'http://127.0.0.1:8000/use_token';">{{ use_token_button_text }}</button>
-		<button onclick="window.location.href = 'http://127.0.0.1:8000/save_token';">{{ save_token_button_text }}</button>
+			<button class="btn btn-secondary" onclick="window.location.href = '{% url 'usetoken' %}';">{{ use_token_button_text }}</button>
+			<button class="btn btn-secondary" onclick="window.location.href = '{% url 'savetoken' %}';">{{ save_token_button_text }}</button>
+		</div>
 		
 		{% include 'footer.html' %}
 	</body>

@@ -14,7 +14,7 @@ import random
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 MAXSECTORNUM = 11
 WHEEL_OF_JEOPARDY = 'Wheel of Jeopardy'
-ROUND_TITLE = 'Round Number: '
+ROUND_TITLE = 'Round: '
 
 @require_http_methods(["GET"])
 def home(request):
@@ -25,7 +25,6 @@ def home(request):
 
     context = {
         'form': form,
-        'button_1_text': 'Question Manager',
         'page_title': 'Home Page',
     }
     return HttpResponse(template.render(context, request))
@@ -57,7 +56,6 @@ def wheel(request):
             'winner_text': text,
             'classes': User.getPlayerTableHeaders(),
             'data': gs.getPlayerScoreData(),
-            'button_link': 'home',
             'button_text': 'Go Home',
             'page_title': 'Game Over',
         }
@@ -66,14 +64,12 @@ def wheel(request):
         template = loader.get_template('wheel.html')
         categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
         values = Question.getQuestionPointsLeftInCategory(categories, gs.current_round)
-        print(values)
         context = {
             'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
-            'current_player': 'Current Player Name: ' + gs.getPlayerTurn().username,
+            'current_player': 'Current Player: ' + gs.getPlayerTurn().username,
             'number_turns': 'Number of turns: %d, Number of turns remaining: %d' % (gs.turnsTaken(), gs.turnsRemaining()),
-            'sector_color': '#baa',
             'button_text': 'Spin Wheel',
-            'button_link': 'wheel/spin/%d' % (random.randint(0,MAXSECTORNUM)),
+            'sector_val': '%d' % (random.randint(0,MAXSECTORNUM)),
             'classes': User.getPlayerTableHeaders(),
             'data': gs.getPlayerScoreData(),
             'categories': categories,
@@ -88,7 +84,6 @@ def spin(request, sector_id):
     template = loader.get_template('wheel2.html')
     wheel = GameWheel.objects.get(pk=request.session['gameWheel'])
 
-    print("wheel.get_categories(): " + str(wheel.get_categories()))
     sector_obj = wheel.get_sector(sector_id)
     print("GET spin() called with sector_id: " + str(sector_id) + " and sector_obj: " + sector_obj)
 
@@ -145,7 +140,6 @@ def lose_turn(request):
         context = {
             'player': player.username,
             'button_text': 'Next Turn',
-            'button_link': 'wheel',
             'page_title': 'Token Management',
         }
     return HttpResponse(template.render(context, request))
@@ -160,7 +154,6 @@ def free_turn(request):
     context = {
         'sector_color': '#bab',
         'button_text': 'Next Turn',
-        'button_link': 'wheel',
         'player': player.username,
         'free_tokens': tokens,
     }
@@ -175,7 +168,6 @@ def bankrupt(request):
     context = {
         'sector_color': '#bab',
         'button_text': 'Next Turn',
-        'button_link': 'wheel',
     }
     return HttpResponse(template.render(context, request))
 
@@ -190,7 +182,6 @@ def double_score(request):
     context = {
         'sector_color': '#bab',
         'button_text': 'Next Turn',
-        'button_link': 'wheel',
         'player': player.username,
         'new_score': score,
     }
@@ -216,17 +207,13 @@ def board(request):
 def question(request):
     category = request.GET.get('category', '')
    
-    if(category):
-        print("GET question() called with category: " + category)
-    else:
-        print("ERROR! Question page called without a category")
+    if not category:
         return redirect('wheel')
 
-    print(category)
     round = GameSession.objects.all()[0].current_round
     Question.getQuestionPointsLeftInCategory(category, round)
     question = Question.getNextQuestionForCategory(category, round)
-    print(question)
+
     if question == None:
         return redirect('wheel')
         
@@ -239,16 +226,26 @@ def question(request):
         'sector_id': 11,
         'category': question.category.category_title,
         'question_text': question.question_text,
-        'button_1_text': 'Right',
-        'button_1_color': 'green',
-        'button_2_text': 'Wrong',
-        'button_2_color': 'red',
-        'button_link_1': 'right',
-        'button_link_2': 'wrong',
+        'button_text': 'Show Answer',
+        'question_pk': question.pk,
         'point_total': question.points,
-        'answer_text': question.answer_text,
         'page_title': 'Question Time',
         'timeout_duration': 15,
+    }
+    return HttpResponse(template.render(context, request))
+
+@require_http_methods(["GET"])
+def answer(request, pk):
+    template = loader.get_template('answer.html')
+    question = Question.getQuestionWithPK(pk)
+    txt = 'this is the answer'
+
+    context = {
+        'page_title': 'Answer',
+        'answer_text': question.answer_text,
+        'button_1_text': 'Right',
+        'button_2_text': 'Wrong',
+        'point_val': question.points,
     }
     return HttpResponse(template.render(context, request))
 
@@ -257,11 +254,22 @@ def questionManager(request):
     template = loader.get_template('questionManager.html')
     context = {
         'button_text': 'Go Back',
+        'questions': Question.getAllQuestions(),
     }
     return HttpResponse(template.render(context, request))
 
 @require_http_methods(["POST"])
 def uploadCSV(request):
+
+    if '_home' in request.POST:
+        return redirect('home')
+    elif '_delete' in request.POST:
+        Category.deleteAll()
+        Question.deleteAll()
+        return redirect('questionManager')
+    elif len(request.FILES) == 0:
+        return redirect('questionManager')
+
     gss = GameSession.objects.all()
     gs = None
     if len(gss) == 1:
@@ -298,6 +306,35 @@ def start_game_session(request):
     :param request: Should contain fields for user names and other pre game information
     :return: returns a redirect response to the game wheel
     '''
+    if '_questionManager' in request.POST:
+        response = redirect('questionManager')
+        return response
+    else:
+        form = startGameForm(request.POST)
+        form.fields['user_1'].required = True
+        form.fields['user_2'].required = True
+        form.fields['category_1'].required = True
+        form.fields['category_2'].required = True
+        form.fields['category_3'].required = True
+        form.fields['category_4'].required = True
+        form.fields['category_5'].required = True
+        form.fields['category_6'].required = True
+
+        txt = ''
+        if not form.is_valid():
+            txt = 'Please enter all fields before starting the game!'
+        elif not checkUnique(form):
+            txt = 'All categories must be unique before starting the game!'
+
+        if txt is not '':
+            template = loader.get_template('home.html')
+            context = {
+                'form': form,
+                'page_title': 'Home Page',
+                'error_text': txt,
+            }
+            return HttpResponse(template.render(context, request))
+
     user1 = User.create(request.POST.get('user_1'), True)
     user1.save()
     user2 = User.create(request.POST.get('user_2'), False)
@@ -318,7 +355,6 @@ def start_game_session(request):
             q.game_session = game_session
             q.setAsked(False)
             q.save()
-            print(q)
 
     game_wheel = GameWheel.create(categories)
     game_wheel.save()
@@ -327,6 +363,11 @@ def start_game_session(request):
     response = redirect('wheel')
     return response
 
+def checkUnique(startform):
+    lst = [startform.cleaned_data['category_1'], startform.cleaned_data['category_2'], startform.cleaned_data['category_3'], startform.cleaned_data['category_4'], startform.cleaned_data['category_5'], startform.cleaned_data['category_6']]
+    
+    return len(set(lst)) == len(lst) 
+
 
 def handleQuestionCSV(file, gs):
     lines = file.read().decode('UTF-8').split('\n')
@@ -334,9 +375,17 @@ def handleQuestionCSV(file, gs):
         s = str(l).strip().split('`')
         if s[3] == 'Question_Text':
             continue
+
         cat = Category.create(s[2])
+        if cat is None:
+            print('Could not add the category name: %s' % (s[2]))
+            continue
         cat.save()
+
         question = Question.create(s[3],s[4],cat,int(s[1]),gs,int(s[0]))
+        if question is None:
+            print('Could not add the question: %s,%s,%s,%s' % (s[3], cat.category_title, s[1], s[0]))
+            continue
         question.save()
 
 
@@ -344,8 +393,6 @@ def handleQuestionCSV(file, gs):
 def token1(request):
     template = loader.get_template('token.html')
     context = {
-        'button_link_1': 'decrementToken',
-        'button_link_2': 'wheel',
         'button_1_text': 'Yes',
         'button_2_text': 'No',
         'question_text': 'Would you like to use a free turn token? You have %d left' % GameSession.objects.all()[0].getOtherPlayerTokensLeft()

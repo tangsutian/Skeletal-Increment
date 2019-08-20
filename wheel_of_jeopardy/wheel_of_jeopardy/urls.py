@@ -34,6 +34,7 @@ urlpatterns = [
     path('board/', gameLogic.board, name='board'),
     path('question/', gameLogic.question, name='question'),
     path('questionManager/', gameLogic.questionManager, name='questionManager'),
+    path('answer/<int:pk>/', gameLogic.answer, name='answer'),
     path('questionManager/upload/', gameLogic.uploadCSV, name='upload'),
     path('', gameLogic.home, name='home'),
     path('startGameSession/', gameLogic.start_game_session, name='startGame'),

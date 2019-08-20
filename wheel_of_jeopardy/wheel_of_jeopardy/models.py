@@ -3,6 +3,10 @@ from random import randint
 import simplejson as json
 
 
+MAX_NUMBER_OF_QUESTIONS_PER_ROUND=5
+MAX_NUMBER_OF_ROUNDS=2
+MAX_QUESTIONS_PER_CATEGORY=MAX_NUMBER_OF_QUESTIONS_PER_ROUND*MAX_NUMBER_OF_ROUNDS
+
 class Category(models.Model):
     '''
     Stores a category entry. One-to-many relationship with Question.
@@ -46,6 +50,21 @@ class Question(models.Model):
 
     @classmethod
     def create(cls, q_text, a_text, category, point, session, round_n):
+        questionsInCategory = Question.getQuestionsInCategory(category)
+        questionsInRound = questionsInCategory.filter(round_num=round_n)
+        questionsInPoints = questionsInRound.filter(points=point)
+
+        if len(questionsInCategory) == MAX_QUESTIONS_PER_CATEGORY:
+            print('rejected for max questions exceeded')
+            return None
+        if len(questionsInRound) == MAX_NUMBER_OF_QUESTIONS_PER_ROUND:
+            print('rejected for max num of questions per round')
+            return None
+        if len(questionsInPoints) > 0:
+            print('rejected for point value already included')
+            return None
+
+
         question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session, asked=False, round_num=round_n)
         return question
 
@@ -64,7 +83,7 @@ class Question(models.Model):
         c = b.exclude(game_session__isnull=True)
         d = c.exclude(asked=True)
         e = d.order_by('points')
-        print(e)
+
         if len(e) == 0:
             return None
         return e[0]
@@ -73,6 +92,10 @@ class Question(models.Model):
     def getQuestionsInCategory(cls, cat):
         a = Question.objects.filter(category__category_title__exact=cat)
         return a
+
+    @classmethod
+    def getAllQuestions(cls):
+        return Question.objects.all().order_by('category__category_title', 'round_num', 'points')
 
     @classmethod
     def getQuestionPointsLeftInCategory(cls, categories, round):
@@ -93,6 +116,10 @@ class Question(models.Model):
             values.append(pts)
         
         return zip(*values)
+
+    @classmethod
+    def getQuestionWithPK(cls, key):
+        return Question.objects.get(pk=key)
 
 
     def __str__(self):
@@ -354,12 +381,3 @@ class GameSession(models.Model):
             return self.User2_profile
         else:
             return None
-
-
-    # def __init__(self, user1, user2):
-    #     self.user1 = user1
-    #     self.user2 = user2
-    #     self.cur_rount = 0
-    #     self.gameWheel = gameWheel()
-
-
