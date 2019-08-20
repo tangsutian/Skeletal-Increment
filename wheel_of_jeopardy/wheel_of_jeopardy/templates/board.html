@@ -6,7 +6,7 @@
 		{% include 'header.html' %}
 		{% include "gameboard.html" %}
 
-		<button onclick="window.location.href ='{% url 'question' %}';">{{ button_text }}</button>
+		<button class="btn btn-primary" onclick="window.location.href ='{% url 'question' %}';">{{ button_text }}</button>
 
 		{% include 'footer.html' %}
 	</body>

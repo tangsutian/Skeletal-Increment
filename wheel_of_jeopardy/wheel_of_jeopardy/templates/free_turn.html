@@ -10,7 +10,7 @@
 			    These tokens can be used when you answer a question incorrectly or spin a "lose turn" sector.<br>
 			    Setting {{player}}'s available free token count to {{free_tokens}}!</h1>
 
-			<button onclick="window.location.href = '{% url 'wheel' %}';">{{ button_text }}</button>
+			<button class="btn btn-primary" onclick="window.location.href = '{% url 'wheel' %}';">{{ button_text }}</button>
 		</div>
 
 		{% include 'footer.html' %}

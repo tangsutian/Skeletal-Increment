@@ -7,7 +7,7 @@
 
 		<h1>Sector Spun: {{ sector_spun }}</h1>
 		{% for category in categories %}
-			<button onclick="window.location.href = '{% url 'category' sector_id=category %}';">{{ category }}</button>
+			<button class="btn btn-primary" onclick="window.location.href = '{% url 'category' sector_id=category %}';">{{ category }}</button>
 		{% endfor %}
 
 		{% include 'footer.html' %}

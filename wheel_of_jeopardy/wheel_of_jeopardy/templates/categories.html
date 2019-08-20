@@ -1,0 +1,20 @@
+<table class="table table-bordered">
+	<thead class="thead-light">
+		<tr>
+			<th scope="col">Round</th>
+			<th scope="col">Category</th>
+			<th scope="col">Question</th>
+			<th scope="col">Point Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for question in questions %}
+			<tr>
+				<td>{{ question.round_num }}</td>
+				<td>{{ question.category.category_title }}</td>
+				<td>{{ question.question_text }}</td>
+				<td>{{ question.points }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

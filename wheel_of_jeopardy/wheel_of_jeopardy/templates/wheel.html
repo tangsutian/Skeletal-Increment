@@ -9,7 +9,7 @@
 			<h1>{{ title }}</h1>
 			<h3>{{ current_player }}</h3>
 			
-			<button onclick="window.location.href = '{% url 'spin' sector_id=sector_val %}';">{{ button_text }}</button>
+			<button class="btn btn-primary" onclick="window.location.href = '{% url 'spin' sector_id=sector_val %}';">{{ button_text }}</button>
 		</div>
 
 		<div class="row mt-3">

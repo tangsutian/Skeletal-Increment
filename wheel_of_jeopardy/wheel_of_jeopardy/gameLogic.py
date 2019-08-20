@@ -64,7 +64,6 @@ def wheel(request):
         template = loader.get_template('wheel.html')
         categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
         values = Question.getQuestionPointsLeftInCategory(categories, gs.current_round)
-        print(values)
         context = {
             'title': '%s | %s%d' % (WHEEL_OF_JEOPARDY, ROUND_TITLE, gs.current_round),
             'current_player': 'Current Player: ' + gs.getPlayerTurn().username,
@@ -85,7 +84,6 @@ def spin(request, sector_id):
     template = loader.get_template('wheel2.html')
     wheel = GameWheel.objects.get(pk=request.session['gameWheel'])
 
-    print("wheel.get_categories(): " + str(wheel.get_categories()))
     sector_obj = wheel.get_sector(sector_id)
     print("GET spin() called with sector_id: " + str(sector_id) + " and sector_obj: " + sector_obj)
 
@@ -209,17 +207,13 @@ def board(request):
 def question(request):
     category = request.GET.get('category', '')
    
-    if(category):
-        print("GET question() called with category: " + category)
-    else:
-        print("ERROR! Question page called without a category")
+    if not category:
         return redirect('wheel')
 
-    print(category)
     round = GameSession.objects.all()[0].current_round
     Question.getQuestionPointsLeftInCategory(category, round)
     question = Question.getNextQuestionForCategory(category, round)
-    print(question)
+
     if question == None:
         return redirect('wheel')
         
@@ -260,6 +254,7 @@ def questionManager(request):
     template = loader.get_template('questionManager.html')
     context = {
         'button_text': 'Go Back',
+        'questions': Question.getAllQuestions(),
     }
     return HttpResponse(template.render(context, request))
 
@@ -268,6 +263,10 @@ def uploadCSV(request):
 
     if '_home' in request.POST:
         return redirect('home')
+    elif '_delete' in request.POST:
+        Category.deleteAll()
+        Question.deleteAll()
+        return redirect('questionManager')
     elif len(request.FILES) == 0:
         return redirect('questionManager')
 
@@ -276,7 +275,6 @@ def uploadCSV(request):
     if len(gss) == 1:
         gs = gss[0]
     handleQuestionCSV(request.FILES['csv_file'], gs)
-
     return redirect('home')
 
 @require_http_methods(["GET"])
@@ -357,7 +355,6 @@ def start_game_session(request):
             q.game_session = game_session
             q.setAsked(False)
             q.save()
-            print(q)
 
     game_wheel = GameWheel.create(categories)
     game_wheel.save()
@@ -378,9 +375,17 @@ def handleQuestionCSV(file, gs):
         s = str(l).strip().split('`')
         if s[3] == 'Question_Text':
             continue
+
         cat = Category.create(s[2])
+        if cat is None:
+            print('Could not add the category name: %s' % (s[2]))
+            continue
         cat.save()
+
         question = Question.create(s[3],s[4],cat,int(s[1]),gs,int(s[0]))
+        if question is None:
+            print('Could not add the question: %s,%s,%s,%s' % (s[3], cat.category_title, s[1], s[0]))
+            continue
         question.save()
 
 

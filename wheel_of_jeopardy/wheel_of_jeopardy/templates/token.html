@@ -7,8 +7,8 @@
 
 		<div class="container text-center">
 			<h1>{{ question_text }}</h1>
-			<button onclick="window.location.href = '{% url 'dectoken' %}';">{{ button_1_text }}</button>
-			<button onclick="window.location.href = '{% url 'wheel' %}';">{{ button_2_text }}</button>
+			<button class="btn btn-secondary" onclick="window.location.href = '{% url 'dectoken' %}';">{{ button_1_text }}</button>
+			<button class="btn btn-secondary" onclick="window.location.href = '{% url 'wheel' %}';">{{ button_2_text }}</button>
 		</div>
 		
 		{% include 'footer.html' %}
