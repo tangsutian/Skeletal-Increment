@@ -6,7 +6,8 @@ from django.views.decorators.http import require_http_methods
 from django.template import loader
 from random import sample
 from .forms import startGameForm
-from .models import GameSession, User, GameWheel, Category, Question
+from .models import GameSession, User, GameWheel, Category, Question, MAX_QUESTIONS_PER_CATEGORY, MAX_NUMBER_OF_QUESTIONS_PER_ROUND
+from django.core.files import File
 
 import os
 import random
@@ -325,6 +326,8 @@ def start_game_session(request):
             txt = 'Please enter all fields before starting the game!'
         elif not checkUnique(form):
             txt = 'All categories must be unique before starting the game!'
+        elif not checkCategoriesFull(form):
+            txt = 'All catgories must have 5 questions in each round!'
 
         if txt is not '':
             template = loader.get_template('home.html')
@@ -366,12 +369,27 @@ def start_game_session(request):
 def checkUnique(startform):
     lst = [startform.cleaned_data['category_1'], startform.cleaned_data['category_2'], startform.cleaned_data['category_3'], startform.cleaned_data['category_4'], startform.cleaned_data['category_5'], startform.cleaned_data['category_6']]
     
-    return len(set(lst)) == len(lst) 
+    return len(set(lst)) == len(lst)
+
+def checkCategoriesFull(startform):
+    categories = ['category_1', 'category_2', 'category_3', 'category_4', 'category_5', 'category_6']
+
+    for cat in categories:
+        cc = startform.cleaned_data[cat]
+        roundqs = Question.getQuestionsInCategoryAndRound(cc, 1)
+        allqs = Question.getQuestionsInCategory(cc)
+        if len(roundqs) != MAX_NUMBER_OF_QUESTIONS_PER_ROUND:
+            return False
+        if len(allqs) != MAX_QUESTIONS_PER_CATEGORY:
+            return False
+    return True
 
 
 def handleQuestionCSV(file, gs):
     lines = file.read().decode('UTF-8').split('\n')
     for l in lines:
+        if l.strip() == '' or l[0] == '#':
+            continue
         s = str(l).strip().split('`')
         if s[3] == 'Question_Text':
             continue
@@ -409,3 +427,13 @@ def token2(request):
 @require_http_methods(["GET"])
 def gameOver(request):
     return redirect('home')
+
+@require_http_methods(["GET"])
+def download_example_csv(request):
+    filename = './wheel_of_jeopardy/Demo/WheelOfJeopardy-ExampleQuestions.txt'
+
+    f = open(filename, 'r')
+    myfile = File(f)
+    response = HttpResponse(myfile, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=' + filename.split('/')[-1]
+    return response

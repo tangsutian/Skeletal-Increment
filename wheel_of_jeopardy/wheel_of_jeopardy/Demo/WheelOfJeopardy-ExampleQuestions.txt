@@ -1,0 +1,26 @@
+# Please enter values for the given columns separated by a '`' (key above tab)
+# There should be 10 questions per category, 5 questions per round
+# Scores should go 100-500 in increments of 100 in round 1
+# Scores should go 200-1000 in increments of 200 in round 2
+
+Round`Score`Category`Question_Text`Answer_Text
+1`100`General`What is the name of the professional football league?`NFL
+1`200`General`Who was the first President of the United State of America?`George Washington
+1`300`General`What does the EU stand for?`European Union
+1`400`General`Where is the 2020 Olympics being held?`Tokyo, Japan
+1`500`General`What is Henry Ford best known for?`Assembly line production
+2`200`General`Name the Greek god that uses thunderbolts as a weapon?`Zeus
+2`400`General`What is the most popular sport in the world?`Soccer/Football
+2`600`General`What is the maximum number of golf clubs allowed in a golf bag during a golf tournament?`14
+2`800`General`Who invided the lightbulb?`Thomas Edison
+2`1000`General`In what year did man first set foot on the moon?`1969
+1`100`Math`5+6`11
+1`200`Math`-7 - 14`-21
+1`300`Math`8*4`32
+1`400`Math`72/9`8
+1`500`Math`13%5`3
+2`200`Math`round(1.8)`2
+2`400`Math`sqrt(400)`20
+2`600`Math`x^2+b^2=?`c^2
+2`800`Math`derivative of x^3?`3x^2
+2`1000`Math`1+1`2

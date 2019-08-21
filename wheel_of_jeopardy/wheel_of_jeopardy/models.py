@@ -45,9 +45,6 @@ class Question(models.Model):
     asked = models.BooleanField()
     round_num = models.IntegerField()
 
-    def __str__(self):
-        return self.question_text
-
     @classmethod
     def create(cls, q_text, a_text, category, point, session, round_n):
         questionsInCategory = Question.getQuestionsInCategory(category)
@@ -63,60 +60,91 @@ class Question(models.Model):
         if len(questionsInPoints) > 0:
             print('rejected for point value already included')
             return None
-
+        if round_n < 0 or round_n > MAX_NUMBER_OF_ROUNDS:
+            print('rejected for incorrect round number entered')
+            return None
 
         question = cls(question_text=q_text, answer_text=a_text, category=category, points=point, game_session=session, asked=False, round_num=round_n)
         return question
-
-    @classmethod
-    def deleteAll(cls):
-        Question.objects.all().delete()
 
     def setAsked(self, bool):
         self.asked = bool
         self.save()
 
+    '''
+    Delete all Questions
+    '''
     @classmethod
-    def getNextQuestionForCategory(cls, cat, round_num):
-        a = Question.objects.filter(category__category_title__exact=cat)
-        b = a.filter(round_num=round_num)
-        c = b.exclude(game_session__isnull=True)
-        d = c.exclude(asked=True)
-        e = d.order_by('points')
+    def deleteAll(cls):
+        Question.objects.all().delete()
 
-        if len(e) == 0:
-            return None
-        return e[0]
-
-    @classmethod
-    def getQuestionsInCategory(cls, cat):
-        a = Question.objects.filter(category__category_title__exact=cat)
-        return a
-
+    '''
+    Get all Questions
+    '''
     @classmethod
     def getAllQuestions(cls):
         return Question.objects.all().order_by('category__category_title', 'round_num', 'points')
 
+    '''
+    Get all Questions for a given category
+    '''
+    @classmethod
+    def getQuestionsInCategory(cls, cat):
+        return Question.objects.filter(category__category_title__exact=cat)
+
+    '''
+    Get all Questions for a given category and round
+    '''
+    @classmethod
+    def getQuestionsInCategoryAndRound(cls, cat, round_n):
+        return cls.getQuestionsInCategory(cat).filter(round_num=round_n)
+
+    '''
+    Get all Questions for a given category and round that is tied to the current game
+    '''
+    @classmethod
+    def getQuestionsForPlayingCategory(cls, cat, round_n):
+        gspk = GameSession.objects.all()[0].pk
+        a = cls.getQuestionsInCategoryAndRound(cat, round_n)
+        b = a.filter(game_session__pk__exact=gspk)
+        c = b.exclude(asked=True)
+        d = c.order_by('points')
+
+        return d
+
+    '''
+    Get the next Question based on the lowest point value question
+    '''
+    @classmethod
+    def getNextQuestionForCategory(cls, cat, round_num):
+        a = cls.getQuestionsForPlayingCategory(cat, round_num)
+
+        if len(a) == 0:
+            return None
+        return a[0]
+
+    '''
+    Get all Questions left for all categories
+    '''
     @classmethod
     def getQuestionPointsLeftInCategory(cls, categories, round):
         gspk = GameSession.objects.all()[0].pk
         values = []
         for cat in categories:
-            a = Question.objects.filter(category__category_title__exact=cat)
-            b = a.filter(round_num=round)
-            c = b.filter(game_session__pk__exact=gspk)
-            d = c.exclude(asked=True)
-            e = d.order_by('points')
+            a = cls.getQuestionsForPlayingCategory(cat, round)
 
             pts = []
-            for val in range(0,5-len(e),1):
+            for val in range(0,5-len(a),1):
                 pts.append('')
-            for pt in e:
+            for pt in a:
                 pts.append(pt.points)
             values.append(pts)
         
         return zip(*values)
 
+    '''
+    Get the Question with the given primary key
+    '''
     @classmethod
     def getQuestionWithPK(cls, key):
         return Question.objects.get(pk=key)

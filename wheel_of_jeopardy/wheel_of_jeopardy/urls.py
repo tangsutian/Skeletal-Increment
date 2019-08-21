@@ -43,4 +43,5 @@ urlpatterns = [
     path('gameOver/', gameLogic.gameOver, name='gameover'),
     path('use_token/', gameLogic.use_token, name='usetoken'),
     path('save_token/', gameLogic.save_token, name='savetoken'),
+    path('questionManager/downloadExample/', gameLogic.download_example_csv , name='downloadExample')
 ]
