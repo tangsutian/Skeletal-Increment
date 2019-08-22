@@ -228,7 +228,6 @@ class GameWheel(models.Model):
         wheel = cls(wheel_sectors=json.dumps(cls.event_list+categories))
         return wheel
 
-
     def get_spin_result(self):
         jsonDec = json.decoder.JSONDecoder()
         sector_list = jsonDec.decode(self.wheel_sectors)
