@@ -30,7 +30,7 @@ def home(request):
     }
     return HttpResponse(template.render(context, request))
 
-
+import simplejson
 @require_http_methods(["GET"])
 def wheel(request):
     gs = GameSession.objects.all()[0]
@@ -76,6 +76,7 @@ def wheel(request):
             'categories': categories,
             'point_totals': values,
             'page_title': 'Wheel Board',
+            'category_names': simplejson.dumps(categories + ['Free Turn Token', 'Lose Turn', 'Opponent Choice', 'Player Choice', 'Double Score', 'Bankrupt Score']),
         }
     return HttpResponse(template.render(context, request))
 
@@ -108,7 +109,7 @@ def spin(request, sector_id):
 
 def category_select(request, player):
     template = loader.get_template("category.html")
-    
+
     gs = GameSession.objects.all()[0]
     categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
     values = Question.getQuestionPointsLeftInCategory(categories, gs.current_round)
