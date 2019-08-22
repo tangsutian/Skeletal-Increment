@@ -7,24 +7,28 @@
 
 		<div class="text-center">
 			<h1>{{ title }}</h1>
-			<h3>{{ current_player }}</h3>
+			<h4>{{ current_player }}</h4>
 			
 			<button class="btn btn-primary" onclick="window.location.href = '{% url 'spin' sector_id=sector_val %}';">{{ button_text }}</button>
 		</div>
 	
-		<div class="center">
-			{% include "Draw_wheel.html" %}
+		<div class="container" style="margin-top:8px">
+			<div class="row align-items-center">
+				<div class="col-lg-6">
+					{% include "Draw_wheel.html" %}
+				</div>
+				<div class="col-lg-6">
+					{% include "gameboard.html" %}
+				</div>
+			</div>
 		</div>
 
 		<div class="row mt-3">
 			{% include "scoreboard.html" %}
 		</div>
-		<div class="row mt-3">
-			{% include "gameboard.html" %}
-		</div>
 
 		<div class="text-center mt-3">
-			<h3>{{ number_turns }}</h3>
+			<h4>{{ number_turns }}</h4>
 		</div>
 
 		{% include 'footer.html' %}
