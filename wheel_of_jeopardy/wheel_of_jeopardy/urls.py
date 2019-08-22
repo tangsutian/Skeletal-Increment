@@ -33,6 +33,7 @@ urlpatterns = [
     path('wheel/', include(extra_patterns)),
     path('board/', gameLogic.board, name='board'),
     path('question/', gameLogic.question, name='question'),
+    path('category/<slug:category>', gameLogic.category, name='category'),
     path('questionManager/', gameLogic.questionManager, name='questionManager'),
     path('answer/<int:pk>/', gameLogic.answer, name='answer'),
     path('questionManager/upload/', gameLogic.uploadCSV, name='upload'),

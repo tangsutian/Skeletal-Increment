@@ -82,7 +82,7 @@ def wheel(request):
 
 @require_http_methods(["GET"])
 def spin(request, sector_id):
-    template = loader.get_template('wheel2.html')
+
     wheel = GameWheel.objects.get(pk=request.session['gameWheel'])
 
     sector_obj = wheel.get_sector(sector_id)
@@ -96,15 +96,25 @@ def spin(request, sector_id):
         return free_turn(request)
     elif sector_obj == "lose_turn":
         return lose_turn(request)
-    elif sector_obj == "opponents_choice":
-        return HttpResponse(template.render(context, request)) # TODO Implement
-    elif sector_obj == "players_choice":
-        return HttpResponse(template.render(context, request)) # TODO Implement
+    elif sector_obj == "opponent_choice":
+        return category_select(request, "Opponent")
+    elif sector_obj == "player_choice":
+        return category_select(request, "Player")
     else: # If the wheel spin was a category, forward right to the question page
         get_info = request.GET.copy()
         get_info["category"] = sector_obj
         request.GET = get_info
         return question(request)
+
+def category_select(request, player):
+    template = loader.get_template("category.html")
+    categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
+    context = {
+
+        'page_title': player + ' Category Select',
+        'categories': categories
+    }
+    return HttpResponse(template.render(context, request))
 
 def use_token(request):
     gss = GameSession.objects.all()
@@ -203,20 +213,34 @@ def board(request):
     }
     return HttpResponse(template.render(context, request))
 
+def category(request, category):
+    print("category w/ category called")
+    get_info = request.GET.copy()
+    get_info["category"] = category
+    request.GET = get_info
+    return question(request)
 
 @require_http_methods(["GET"])
 def question(request):
+    print("GET QUESTION")
     category = request.GET.get('category', '')
    
     if not category:
         return redirect('wheel')
+    else:
+        print(category)
 
     round = GameSession.objects.all()[0].current_round
     Question.getQuestionPointsLeftInCategory(category, round)
     question = Question.getNextQuestionForCategory(category, round)
 
+    print("round = " + str(round))
+    print()
+
     if question == None:
         return redirect('wheel')
+    else:
+        print("question = " + question.question_text)
         
     question.setAsked(True)
 
@@ -224,8 +248,9 @@ def question(request):
     context = {
 
         #'sector_id': GameWheel.objects.get(pk=request.session['gameWheel']).get_sector_num(category),
-        'sector_id': 11,
-        'category': question.category.category_title,
+        #'sector_id': 11,
+        #'category': question.category.category_title,
+        'category': question.category,
         'question_text': question.question_text,
         'button_text': 'Show Answer',
         'question_pk': question.pk,
@@ -248,6 +273,8 @@ def answer(request, pk):
         'button_2_text': 'Wrong',
         'point_val': question.points,
     }
+    print("GET QUESTION END")
+
     return HttpResponse(template.render(context, request))
 
 @require_http_methods(["GET"])
