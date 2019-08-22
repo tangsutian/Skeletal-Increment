@@ -108,11 +108,15 @@ def spin(request, sector_id):
 
 def category_select(request, player):
     template = loader.get_template("category.html")
+    
+    gs = GameSession.objects.all()[0]
     categories = GameWheel.objects.get(pk=request.session['gameWheel']).get_categories()
+    values = Question.getQuestionPointsLeftInCategory(categories, gs.current_round)
     context = {
 
         'page_title': player + ' Category Select',
-        'categories': categories
+        'categories': categories,
+        'point_totals': values,
     }
     return HttpResponse(template.render(context, request))
 

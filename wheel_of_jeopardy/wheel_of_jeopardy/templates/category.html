@@ -5,10 +5,15 @@
 	<body>
 		{% include 'header.html' %}
 
-		<h1>{{ page_title }}</h1>
-		{% for category in categories %}
-			<button class="btn btn-primary" onclick="window.location.href = '{% url 'category' category=category %}';">{{ category }}</button>
-		{% endfor %}
+		<div class="container text-center">
+			<h1>{{ page_title }}</h1>
+			{% for category in categories %}
+				<button class="btn btn-primary" onclick="window.location.href = '{% url 'category' category=category %}';">{{ category }}</button>
+			{% endfor %}
+			<div class="row mt-3">
+				{% include "gameboard.html" %}
+			</div>
+		</div>
 
 		{% include 'footer.html' %}
 	</body>
