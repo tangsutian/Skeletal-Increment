@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+
+		</head>
+		<body>
+		<center>
+			<canvas id="canvas" width="600" height="600" class="center"></canvas>
+		
+
+		<script>
+			var color    = ['#661d9e','#5338f5','#b82517','#a09220','#d469bb','#582134', "#f92d6e","#2ce8e8","#4f6d92","#c2a0b0","#5f624a","#99e21d"];
+			var label    = ['category 1', 'category 2','category 3','category 4','category 5','category 6','loss turn','free turn','bankrupt','player choice','opponent choice','Double score'];
+			var slices   = color.length;
+			var sliceDeg = 360/slices;
+			var deg      = 0;
+			var ctx    = canvas.getContext('2d');
+			var width  = canvas.width; // size
+			var center = width/2;      // center
+			function deg2rad(deg){ return deg * Math.PI/180; }
+
+			function drawSlice(deg, color){
+  				ctx.beginPath();
+  				ctx.fillStyle = color;
+  				ctx.moveTo(center, center);
+  				ctx.arc(center, center, width/2, deg2rad(deg), deg2rad(deg+sliceDeg));
+  				ctx.lineTo(center, center);
+  				ctx.fill();
+					}
+
+			function drawText(deg, text) {
+			  ctx.save();
+			  ctx.translate(center, center);
+			  ctx.rotate(deg2rad(deg));
+			  ctx.textAlign = "center";
+			  ctx.fillStyle = "#fff";
+			  ctx.font = 'bold 20px sans-serif';
+			  ctx.fillText(text, 130, 10);
+			  ctx.restore();
+			}
+
+			for(var i=0; i<slices; i++){
+			  drawSlice(deg, color[i]);
+			  drawText(deg+sliceDeg/2, label[i]);
+			  deg += sliceDeg;
+			}
+
+		</script>
+
+		</center>
+		</body>
+</html>
