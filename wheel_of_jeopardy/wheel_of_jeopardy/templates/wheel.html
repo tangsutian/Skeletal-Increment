@@ -11,6 +11,10 @@
 			
 			<button class="btn btn-primary" onclick="window.location.href = '{% url 'spin' sector_id=sector_val %}';">{{ button_text }}</button>
 		</div>
+	
+		<div class="center">
+			{% include "Draw_wheel.html" %}
+		</div>
 
 		<div class="row mt-3">
 			{% include "scoreboard.html" %}
