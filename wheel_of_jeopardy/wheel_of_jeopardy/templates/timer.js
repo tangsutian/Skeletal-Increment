@@ -14,7 +14,7 @@
 
             const base_url = window.location.origin;
 
-            let target_url = base_url + '/wheel/wrong/{{ point_total }}';
+            let target_url = base_url + '/wheel/wrong/0';
 
             setTimeout(function () { window.location.href = target_url}, 3000);
         }
